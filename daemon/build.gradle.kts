@@ -39,6 +39,7 @@ android {
     buildFeatures {
         prefab = true
         buildConfig = true
+        aidl = true
     }
 
     defaultConfig {
@@ -114,7 +115,7 @@ android.applicationVariants.all {
 }
 
 dependencies {
-    implementation(libs.libxposed.`interface`)
+//    implementation(libs.libxposed.`interface`)
     implementation(libs.agp.apksig)
     implementation(projects.apache)
     implementation(projects.hiddenapi.bridge)

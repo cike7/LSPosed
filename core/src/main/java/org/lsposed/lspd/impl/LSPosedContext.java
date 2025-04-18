@@ -170,6 +170,18 @@ public class LSPosedContext implements XposedInterface {
         return LSPosedBridge.doHook(origin, PRIORITY_DEFAULT, hooker);
     }
 
+    @NonNull
+    @Override
+    public <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, @NonNull Class<? extends Hooker> hooker) {
+        return null;
+    }
+
+    @NonNull
+    @Override
+    public <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, int priority, @NonNull Class<? extends Hooker> hooker) {
+        return null;
+    }
+
     @Override
     @NonNull
     public MethodUnhooker<Method> hook(@NonNull Method origin, int priority, @NonNull Class<? extends Hooker> hooker) {
@@ -213,6 +225,11 @@ public class LSPosedContext implements XposedInterface {
         return HookBridge.invokeOriginalMethod(method, thisObject, args);
     }
 
+    @Override
+    public <T> void invokeOrigin(@NonNull Constructor<T> constructor, @NonNull T thisObject, Object... args) throws InvocationTargetException, IllegalArgumentException, IllegalAccessException {
+
+    }
+
     private static char getTypeShorty(Class<?> type) {
         if (type == int.class) {
             return 'I';
@@ -254,6 +271,11 @@ public class LSPosedContext implements XposedInterface {
             throw new IllegalArgumentException("Cannot invoke special on static method: " + method);
         }
         return HookBridge.invokeSpecialMethod(method, getExecutableShorty(method), method.getDeclaringClass(), thisObject, args);
+    }
+
+    @Override
+    public <T> void invokeSpecial(@NonNull Constructor<T> constructor, @NonNull T thisObject, Object... args) throws InvocationTargetException, IllegalArgumentException, IllegalAccessException {
+
     }
 
     @NonNull
