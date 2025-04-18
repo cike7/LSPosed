@@ -39,7 +39,6 @@ import androidx.annotation.Nullable;
 
 import org.lsposed.daemon.BuildConfig;
 import org.lsposed.lspd.models.PreLoadedApk;
-import org.lsposed.lspd.util.InstallerVerifier;
 import org.lsposed.lspd.util.Utils;
 
 import java.io.BufferedReader;
@@ -159,8 +158,6 @@ public class ConfigFileManager {
 
     static ParcelFileDescriptor getManagerApk() throws IOException {
         if (fd != null) return fd.dup();
-        InstallerVerifier.verifyInstallerSignature(managerApkPath.toString());
-
         SELinux.setFileContext(managerApkPath.toString(), "u:object_r:system_file:s0");
         fd = ParcelFileDescriptor.open(managerApkPath.toFile(), ParcelFileDescriptor.MODE_READ_ONLY);
         return fd.dup();

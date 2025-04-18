@@ -45,7 +45,9 @@ cmaker {
         )
         cFlags.addAll(flags)
         cppFlags.addAll(flags)
-        abiFilters("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+        // 移除x64,x86平台
+//        abiFilters("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+        abiFilters("arm64-v8a", "armeabi-v7a")
     }
     buildTypes {
         if (it.name == "release") {
@@ -88,6 +90,7 @@ subprojects {
             externalNativeBuild {
                 cmake {
                     version = "3.29.8+"
+//                    version = "3.31.1" // mac 需要去下载大于等于 1.11 版本的 ninja，下载地址 https://github.com/ninja-build/ninja/releases
                     buildStagingDirectory = layout.buildDirectory.get().asFile
                 }
             }

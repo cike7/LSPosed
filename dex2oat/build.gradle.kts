@@ -35,6 +35,17 @@ android {
         minSdk = 29
     }
 
+    // 移除x64,x86平台
+    buildTypes {
+        all {
+            externalNativeBuild {
+                cmake {
+                    abiFilters("arm64-v8a", "armeabi-v7a")
+                }
+            }
+        }
+    }
+
     externalNativeBuild {
         cmake {
             path("src/main/cpp/CMakeLists.txt")

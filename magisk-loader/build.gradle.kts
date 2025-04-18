@@ -169,7 +169,8 @@ fun afterEval() = android.applicationVariants.forEach { variant ->
         group = "LSPosed"
         dependsOn(
             "assemble$variantCapped",
-            ":app:package$buildTypeCapped",
+            //  移除 manager app
+//            ":app:package$buildTypeCapped",
             ":daemon:package$buildTypeCapped",
             ":dex2oat:externalNativeBuild${buildTypeCapped}",
             generateWebRoot
@@ -204,10 +205,11 @@ fun afterEval() = android.applicationVariants.forEach { variant ->
             filter<ReplaceTokens>("tokens" to tokens)
             filter<FixCrLfFilter>("eol" to FixCrLfFilter.CrLf.newInstance("lf"))
         }
-        from(project(":app").tasks.getByName("package$buildTypeCapped").outputs) {
-            include("*.apk")
-            rename(".*\\.apk", "manager.apk")
-        }
+        // 移除 manager app
+//        from(project(":app").tasks.getByName("package$buildTypeCapped").outputs) {
+//            include("*.apk")
+//            rename(".*\\.apk", "manager.apk")
+//        }
         from(project(":daemon").tasks.getByName("package$buildTypeCapped").outputs) {
             include("*.apk")
             rename(".*\\.apk", "daemon.apk")
@@ -316,68 +318,69 @@ afterEvaluate {
     afterEval()
 }
 
-val adb: String = androidComponents.sdkComponents.adb.get().asFile.absolutePath
-val killLspd = task<Exec>("killLspd") {
-    group = "LSPosed"
-    commandLine(adb, "shell", "su", "-c", "killall", "lspd")
-    isIgnoreExitValue = true
-}
-val pushDaemon = task<Exec>("pushDaemon") {
-    group = "LSPosed"
-    dependsOn(":daemon:assembleDebug")
-    workingDir(project(":daemon").layout.buildDirectory.dir("outputs/apk/debug"))
-    commandLine(adb, "push", "daemon-debug.apk", "/data/local/tmp/daemon.apk")
-}
-val pushDaemonNative = task<Exec>("pushDaemonNative") {
-    group = "LSPosed"
-    dependsOn(":daemon:assembleDebug")
-    doFirst {
-        val abi: String = ByteArrayOutputStream().use { outputStream ->
-            exec {
-                commandLine(adb, "shell", "getprop", "ro.product.cpu.abi")
-                standardOutput = outputStream
-            }
-            outputStream.toString().trim()
-        }
-        workingDir(project(":daemon").layout.buildDirectory.dir("intermediates/stripped_native_libs/debug/stripDebugDebugSymbols/out/lib/$abi"))
-    }
-    commandLine(adb, "push", "libdaemon.so", "/data/local/tmp/libdaemon.so")
-}
-val reRunDaemon = task<Exec>("reRunDaemon") {
-    group = "LSPosed"
-    dependsOn(pushDaemon, pushDaemonNative, killLspd)
-    // tricky to pass a minus number to avoid the injection warning
-    commandLine(
-        adb, "shell", "ASH_STANDALONE=1", "su", "-mm", "-pc",
-        "/data/adb/magisk/busybox sh /data/adb/modules/*_lsposed/service.sh --system-server-max-retry=-1&"
-    )
-    isIgnoreExitValue = true
-}
-val tmpApk = "/data/local/tmp/manager.apk"
-val pushApk = task<Exec>("pushApk") {
-    group = "LSPosed"
-    dependsOn(":app:assembleDebug")
-    doFirst {
-        exec {
-            commandLine(adb, "shell", "su", "-c", "rm", "-f", tmpApk)
-        }
-    }
-    workingDir(project(":app").layout.buildDirectory.dir("outputs/apk/debug"))
-    commandLine(adb, "push", "app-debug.apk", tmpApk)
-}
-val openApp = task<Exec>("openApp") {
-    group = "LSPosed"
-    commandLine(
-        adb, "shell",
-        "am", "start", "-c", "org.lsposed.manager.LAUNCH_MANAGER",
-        "com.android.shell/.BugreportWarningActivity"
-    )
-}
-task("reRunApp") {
-    group = "LSPosed"
-    dependsOn(pushApk)
-    finalizedBy(reRunDaemon)
-}
-
-evaluationDependsOn(":app")
-evaluationDependsOn(":daemon")
+// 移除 manager app
+//val adb: String = androidComponents.sdkComponents.adb.get().asFile.absolutePath
+//val killLspd = task<Exec>("killLspd") {
+//    group = "LSPosed"
+//    commandLine(adb, "shell", "su", "-c", "killall", "lspd")
+//    isIgnoreExitValue = true
+//}
+//val pushDaemon = task<Exec>("pushDaemon") {
+//    group = "LSPosed"
+//    dependsOn(":daemon:assembleDebug")
+//    workingDir(project(":daemon").layout.buildDirectory.dir("outputs/apk/debug"))
+//    commandLine(adb, "push", "daemon-debug.apk", "/data/local/tmp/daemon.apk")
+//}
+//val pushDaemonNative = task<Exec>("pushDaemonNative") {
+//    group = "LSPosed"
+//    dependsOn(":daemon:assembleDebug")
+//    doFirst {
+//        val abi: String = ByteArrayOutputStream().use { outputStream ->
+//            exec {
+//                commandLine(adb, "shell", "getprop", "ro.product.cpu.abi")
+//                standardOutput = outputStream
+//            }
+//            outputStream.toString().trim()
+//        }
+//        workingDir(project(":daemon").layout.buildDirectory.dir("intermediates/stripped_native_libs/debug/stripDebugDebugSymbols/out/lib/$abi"))
+//    }
+//    commandLine(adb, "push", "libdaemon.so", "/data/local/tmp/libdaemon.so")
+//}
+//val reRunDaemon = task<Exec>("reRunDaemon") {
+//    group = "LSPosed"
+//    dependsOn(pushDaemon, pushDaemonNative, killLspd)
+//    // tricky to pass a minus number to avoid the injection warning
+//    commandLine(
+//        adb, "shell", "ASH_STANDALONE=1", "su", "-mm", "-pc",
+//        "/data/adb/magisk/busybox sh /data/adb/modules/*_lsposed/service.sh --system-server-max-retry=-1&"
+//    )
+//    isIgnoreExitValue = true
+//}
+//val tmpApk = "/data/local/tmp/manager.apk"
+//val pushApk = task<Exec>("pushApk") {
+//    group = "LSPosed"
+//    dependsOn(":app:assembleDebug")
+//    doFirst {
+//        exec {
+//            commandLine(adb, "shell", "su", "-c", "rm", "-f", tmpApk)
+//        }
+//    }
+//    workingDir(project(":app").layout.buildDirectory.dir("outputs/apk/debug"))
+//    commandLine(adb, "push", "app-debug.apk", tmpApk)
+//}
+//val openApp = task<Exec>("openApp") {
+//    group = "LSPosed"
+//    commandLine(
+//        adb, "shell",
+//        "am", "start", "-c", "org.lsposed.manager.LAUNCH_MANAGER",
+//        "com.android.shell/.BugreportWarningActivity"
+//    )
+//}
+//task("reRunApp") {
+//    group = "LSPosed"
+//    dependsOn(pushApk)
+//    finalizedBy(reRunDaemon)
+//}
+//
+//evaluationDependsOn(":app")
+//evaluationDependsOn(":daemon")

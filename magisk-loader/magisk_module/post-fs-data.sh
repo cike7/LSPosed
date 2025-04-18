@@ -20,5 +20,6 @@
 MODDIR=${0%/*}
 
 rm -f "/data/local/tmp/daemon.apk"
-rm -f "/data/local/tmp/manager.apk"
+# 移除 manager app
+#rm -f "/data/local/tmp/manager.apk"
 

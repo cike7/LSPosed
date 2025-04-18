@@ -62,7 +62,9 @@ check_incompatible_module
 enforce_install_from_magisk_app
 
 # Check architecture
-if [ "$ARCH" != "arm" ] && [ "$ARCH" != "arm64" ] && [ "$ARCH" != "x86" ] && [ "$ARCH" != "x64" ]; then
+# 移除x64,x86平台
+#if [ "$ARCH" != "arm" ] && [ "$ARCH" != "arm64" ] && [ "$ARCH" != "x86" ] && [ "$ARCH" != "x64" ]; then
+if [ "$ARCH" != "arm" ] && [ "$ARCH" != "arm64" ]; then
   abort "! Unsupported platform: $ARCH"
 else
   ui_print "- Device platform: $ARCH"
@@ -80,8 +82,9 @@ extract "$ZIPFILE" 'sepolicy.rule'      "$MODPATH"
 extract "$ZIPFILE" 'framework/lspd.dex' "$MODPATH"
 extract "$ZIPFILE" 'daemon.apk'         "$MODPATH"
 extract "$ZIPFILE" 'daemon'             "$MODPATH"
-rm -f /data/adb/lspd/manager.apk
-extract "$ZIPFILE" 'manager.apk'        "$MODPATH"
+# 移除 manager app
+#rm -f /data/adb/lspd/manager.apk
+#extract "$ZIPFILE" 'manager.apk'        "$MODPATH"
 
 if [ "$FLAVOR" == "zygisk" ]; then
   # extract for KernelSU and APatch
@@ -106,15 +109,16 @@ if [ "$FLAVOR" == "zygisk" ]; then
     fi
   fi
 
-  if [ "$ARCH" = "x86" ] || [ "$ARCH" = "x64" ]; then
-    extract "$ZIPFILE" "lib/x86/liblspd.so" "$MODPATH/zygisk" true
-    mv "$MODPATH/zygisk/liblspd.so" "$MODPATH/zygisk/x86.so"
-
-    if [ "$IS64BIT" = true ]; then
-      extract "$ZIPFILE" "lib/x86_64/liblspd.so" "$MODPATH/zygisk" true
-      mv "$MODPATH/zygisk/liblspd.so" "$MODPATH/zygisk/x86_64.so"
-    fi
-  fi
+# 移除x64,x86平台
+#  if [ "$ARCH" = "x86" ] || [ "$ARCH" = "x64" ]; then
+#    extract "$ZIPFILE" "lib/x86/liblspd.so" "$MODPATH/zygisk" true
+#    mv "$MODPATH/zygisk/liblspd.so" "$MODPATH/zygisk/x86.so"
+#
+#    if [ "$IS64BIT" = true ]; then
+#      extract "$ZIPFILE" "lib/x86_64/liblspd.so" "$MODPATH/zygisk" true
+#      mv "$MODPATH/zygisk/liblspd.so" "$MODPATH/zygisk/x86_64.so"
+#    fi
+#  fi
 fi
 
 if [ "$API" -ge 29 ]; then
@@ -133,18 +137,19 @@ if [ "$API" -ge 29 ]; then
       mv "$MODPATH/bin/dex2oat" "$MODPATH/bin/dex2oat64"
       mv "$MODPATH/bin/liboat_hook.so" "$MODPATH/bin/liboat_hook64.so"
     fi
-  elif [ "$ARCH" == "x86" ] || [ "$ARCH" == "x64" ]; then
-    extract "$ZIPFILE" "bin/x86/dex2oat" "$MODPATH/bin" true
-    extract "$ZIPFILE" "bin/x86/liboat_hook.so" "$MODPATH/bin" true
-    mv "$MODPATH/bin/dex2oat" "$MODPATH/bin/dex2oat32"
-    mv "$MODPATH/bin/liboat_hook.so" "$MODPATH/bin/liboat_hook32.so"
-
-    if [ "$IS64BIT" = true ]; then
-      extract "$ZIPFILE" "bin/x86_64/dex2oat" "$MODPATH/bin" true
-      extract "$ZIPFILE" "bin/x86_64/liboat_hook.so" "$MODPATH/bin" true
-      mv "$MODPATH/bin/dex2oat" "$MODPATH/bin/dex2oat64"
-      mv "$MODPATH/bin/liboat_hook.so" "$MODPATH/bin/liboat_hook64.so"
-    fi
+# 移除x64,x86平台
+#  elif [ "$ARCH" == "x86" ] || [ "$ARCH" == "x64" ]; then
+#    extract "$ZIPFILE" "bin/x86/dex2oat" "$MODPATH/bin" true
+#    extract "$ZIPFILE" "bin/x86/liboat_hook.so" "$MODPATH/bin" true
+#    mv "$MODPATH/bin/dex2oat" "$MODPATH/bin/dex2oat32"
+#    mv "$MODPATH/bin/liboat_hook.so" "$MODPATH/bin/liboat_hook32.so"
+#
+#    if [ "$IS64BIT" = true ]; then
+#      extract "$ZIPFILE" "bin/x86_64/dex2oat" "$MODPATH/bin" true
+#      extract "$ZIPFILE" "bin/x86_64/liboat_hook.so" "$MODPATH/bin" true
+#      mv "$MODPATH/bin/dex2oat" "$MODPATH/bin/dex2oat64"
+#      mv "$MODPATH/bin/liboat_hook.so" "$MODPATH/bin/liboat_hook64.so"
+#    fi
   fi
 
   ui_print "- Patching binaries"
