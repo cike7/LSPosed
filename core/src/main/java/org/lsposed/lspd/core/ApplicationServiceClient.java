@@ -19,9 +19,7 @@
 
 package org.lsposed.lspd.core;
 
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
@@ -57,14 +55,14 @@ public class ApplicationServiceClient implements ILSPApplicationService, IBinder
         }
     }
 
-    @Override
-    public boolean isLogMuted() {
-        try {
-            return service.isLogMuted();
-        } catch (RemoteException | NullPointerException ignored) {
-        }
-        return false;
-    }
+//    @Override
+//    public boolean isLogMuted() {
+//        try {
+//            return service.isLogMuted();
+//        } catch (RemoteException | NullPointerException ignored) {
+//        }
+//        return false;
+//    }
 
     @Override
     public List<Module> getLegacyModulesList() {
@@ -93,14 +91,14 @@ public class ApplicationServiceClient implements ILSPApplicationService, IBinder
         return null;
     }
 
-    @Override
-    public ParcelFileDescriptor requestInjectedManagerBinder(List<IBinder> binder) {
-        try {
-            return service.requestInjectedManagerBinder(binder);
-        } catch (RemoteException | NullPointerException ignored) {
-        }
-        return null;
-    }
+//    @Override
+//    public ParcelFileDescriptor requestInjectedManagerBinder(List<IBinder> binder) {
+//        try {
+//            return service.requestInjectedManagerBinder(binder);
+//        } catch (RemoteException | NullPointerException ignored) {
+//        }
+//        return null;
+//    }
 
     @Override
     public IBinder asBinder() {

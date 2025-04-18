@@ -22,7 +22,6 @@ package org.lsposed.lspd.service;
 import static android.content.Context.BIND_AUTO_CREATE;
 import static org.lsposed.lspd.service.ServiceManager.TAG;
 
-import android.annotation.SuppressLint;
 import android.app.IServiceConnection;
 import android.content.AttributionSource;
 import android.content.ComponentName;
@@ -32,7 +31,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.VersionedPackage;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -40,8 +38,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.SELinux;
 import android.os.SystemProperties;
-import android.system.ErrnoException;
-import android.system.Os;
 import android.util.Log;
 import android.view.IWindowManager;
 
@@ -56,11 +52,11 @@ import org.lsposed.lspd.util.Utils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import hidden.HiddenApiBridge;
 import io.github.libxposed.service.IXposedService;
 import rikka.parcelablelist.ParcelableListSlice;
 
@@ -155,68 +151,68 @@ public class LSPManagerService extends ILSPManagerService.Stub {
         return managerIntent;
     }
 
-    static void openManager(Uri withData) {
-        var intent = getManagerIntent();
-        if (intent == null) return;
-        intent = new Intent(intent);
-        intent.setData(withData);
-        try {
-            ActivityManagerService.startActivityAsUserWithFeature("android", null, intent, intent.getType(), null, null, 0, 0, null, null, 0);
-        } catch (RemoteException e) {
-            Log.e(TAG, "failed to open manager");
-        }
-    }
-
-    @SuppressLint("WrongConstant")
-    public static void broadcastIntent(Intent inIntent) {
-        var intent = new Intent("org.lsposed.manager.NOTIFICATION");
-        intent.putExtra(Intent.EXTRA_INTENT, inIntent);
-        intent.addFlags(0x01000000); //Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND
-        intent.addFlags(0x00400000); //Intent.FLAG_RECEIVER_FROM_SHELL
-        intent.setPackage(BuildConfig.MANAGER_INJECTED_PKG_NAME);
-        try {
-            ActivityManagerService.broadcastIntentWithFeature(null, intent,
-                    null, null, 0, null, null,
-                    null, -1, null, true, false,
-                    0);
-            intent.setPackage(BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME);
-            ActivityManagerService.broadcastIntentWithFeature(null, intent,
-                    null, null, 0, null, null,
-                    null, -1, null, true, false,
-                    0);
-        } catch (RemoteException t) {
-            Log.e(TAG, "Broadcast to manager failed: ", t);
-        }
-    }
-
-    private void ensureWebViewPermission(File f) {
-        if (!f.exists()) return;
-        SELinux.setFileContext(f.getAbsolutePath(), "u:object_r:xposed_file:s0");
-        try {
-            Os.chown(f.getAbsolutePath(), BuildConfig.MANAGER_INJECTED_UID, BuildConfig.MANAGER_INJECTED_UID);
-        } catch (ErrnoException e) {
-            Log.e(TAG, "chown of webview", e);
-        }
-        if (f.isDirectory()) {
-            for (var g : f.listFiles()) {
-                ensureWebViewPermission(g);
-            }
-        }
-    }
-
-    private void ensureWebViewPermission() {
-        try {
-            var pkgInfo = PackageService.getPackageInfo(BuildConfig.MANAGER_INJECTED_PKG_NAME, 0, 0);
-            if (pkgInfo != null) {
-                var cacheDir = new File(HiddenApiBridge.ApplicationInfo_credentialProtectedDataDir(pkgInfo.applicationInfo) + "/cache");
-                // The cache directory does not exist after `pm clear`
-                cacheDir.mkdirs();
-                ensureWebViewPermission(cacheDir);
-            }
-        } catch (Throwable e) {
-            Log.w(TAG, "cannot ensure webview dir", e);
-        }
-    }
+//    static void openManager(Uri withData) {
+//        var intent = getManagerIntent();
+//        if (intent == null) return;
+//        intent = new Intent(intent);
+//        intent.setData(withData);
+//        try {
+//            ActivityManagerService.startActivityAsUserWithFeature("android", null, intent, intent.getType(), null, null, 0, 0, null, null, 0);
+//        } catch (RemoteException e) {
+//            Log.e(TAG, "failed to open manager");
+//        }
+//    }
+//
+//    @SuppressLint("WrongConstant")
+//    public static void broadcastIntent(Intent inIntent) {
+//        var intent = new Intent("org.lsposed.manager.NOTIFICATION");
+//        intent.putExtra(Intent.EXTRA_INTENT, inIntent);
+//        intent.addFlags(0x01000000); //Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND
+//        intent.addFlags(0x00400000); //Intent.FLAG_RECEIVER_FROM_SHELL
+//        intent.setPackage(BuildConfig.MANAGER_INJECTED_PKG_NAME);
+//        try {
+//            ActivityManagerService.broadcastIntentWithFeature(null, intent,
+//                    null, null, 0, null, null,
+//                    null, -1, null, true, false,
+//                    0);
+//            intent.setPackage(BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME);
+//            ActivityManagerService.broadcastIntentWithFeature(null, intent,
+//                    null, null, 0, null, null,
+//                    null, -1, null, true, false,
+//                    0);
+//        } catch (RemoteException t) {
+//            Log.e(TAG, "Broadcast to manager failed: ", t);
+//        }
+//    }
+//
+//    private void ensureWebViewPermission(File f) {
+//        if (!f.exists()) return;
+//        SELinux.setFileContext(f.getAbsolutePath(), "u:object_r:xposed_file:s0");
+//        try {
+//            Os.chown(f.getAbsolutePath(), BuildConfig.MANAGER_INJECTED_UID, BuildConfig.MANAGER_INJECTED_UID);
+//        } catch (ErrnoException e) {
+//            Log.e(TAG, "chown of webview", e);
+//        }
+//        if (f.isDirectory()) {
+//            for (var g : f.listFiles()) {
+//                ensureWebViewPermission(g);
+//            }
+//        }
+//    }
+//
+//    private void ensureWebViewPermission() {
+//        try {
+//            var pkgInfo = PackageService.getPackageInfo(BuildConfig.MANAGER_INJECTED_PKG_NAME, 0, 0);
+//            if (pkgInfo != null) {
+//                var cacheDir = new File(HiddenApiBridge.ApplicationInfo_credentialProtectedDataDir(pkgInfo.applicationInfo) + "/cache");
+//                // The cache directory does not exist after `pm clear`
+//                cacheDir.mkdirs();
+//                ensureWebViewPermission(cacheDir);
+//            }
+//        } catch (Throwable e) {
+//            Log.w(TAG, "cannot ensure webview dir", e);
+//        }
+//    }
 
     synchronized boolean preStartManager() {
         pendingManager = true;
@@ -225,14 +221,14 @@ public class LSPManagerService extends ILSPManagerService.Stub {
     }
 
     // return true to inject manager
-    synchronized boolean shouldStartManager(int pid, int uid, String processName) {
-        if (!enabled || uid != BuildConfig.MANAGER_INJECTED_UID || !BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME.equals(processName) || !pendingManager)
-            return false;
-        pendingManager = false;
-        managerPid = pid;
-        Log.d(TAG, "starting injected manager: pid = " + pid + " uid = " + uid + " processName = " + processName);
-        return true;
-    }
+//    synchronized boolean shouldStartManager(int pid, int uid, String processName) {
+//        if (!enabled || uid != BuildConfig.MANAGER_INJECTED_UID || !BuildConfig.DEFAULT_MANAGER_PACKAGE_NAME.equals(processName) || !pendingManager)
+//            return false;
+//        pendingManager = false;
+//        managerPid = pid;
+//        Log.d(TAG, "starting injected manager: pid = " + pid + " uid = " + uid + " processName = " + processName);
+//        return true;
+//    }
 
     synchronized boolean setEnabled(boolean newValue) {
         enabled = newValue;
@@ -240,22 +236,22 @@ public class LSPManagerService extends ILSPManagerService.Stub {
         return enabled;
     }
 
-    // return true to send manager binder
-    boolean postStartManager(int pid, int uid) {
-        return enabled && uid == BuildConfig.MANAGER_INJECTED_UID && pid == managerPid;
-    }
-
-    public @NonNull
-    IBinder obtainManagerBinder(@NonNull IBinder heartbeat, int pid, int uid) {
-        new ManagerGuard(heartbeat, pid, uid);
-        if (uid == BuildConfig.MANAGER_INJECTED_UID)
-            ensureWebViewPermission();
-        return this;
-    }
-
-    public boolean isRunningManager(int pid, int uid) {
-        return false;
-    }
+//    // return true to send manager binder
+//    boolean postStartManager(int pid, int uid) {
+//        return enabled && uid == BuildConfig.MANAGER_INJECTED_UID && pid == managerPid;
+//    }
+//
+//    public @NonNull
+//    IBinder obtainManagerBinder(@NonNull IBinder heartbeat, int pid, int uid) {
+//        new ManagerGuard(heartbeat, pid, uid);
+//        if (uid == BuildConfig.MANAGER_INJECTED_UID)
+//            ensureWebViewPermission();
+//        return this;
+//    }
+//
+//    public boolean isRunningManager(int pid, int uid) {
+//        return false;
+//    }
 
     void onSystemServerDied() {
         guard = null;
@@ -293,54 +289,60 @@ public class LSPManagerService extends ILSPManagerService.Stub {
 
     @Override
     public String[] enabledModules() {
-        return ConfigManager.getInstance().enabledModules();
+//        return ConfigManager.getInstance().enabledModules();
+        return new String[]{};
     }
 
     @Override
     public boolean enableModule(String packageName) throws RemoteException {
-        return ConfigManager.getInstance().enableModule(packageName);
+//        return ConfigManager.getInstance().enableModule(packageName);
+        return true;
     }
 
     @Override
     public boolean setModuleScope(String packageName, List<Application> scope) throws RemoteException {
-        return ConfigManager.getInstance().setModuleScope(packageName, scope);
+//        return ConfigManager.getInstance().setModuleScope(packageName, scope);
+        return true;
     }
 
     @Override
     public List<Application> getModuleScope(String packageName) {
-        return ConfigManager.getInstance().getModuleScope(packageName);
+//        return ConfigManager.getInstance().getModuleScope(packageName);
+        return new ArrayList<>();
     }
 
     @Override
     public boolean disableModule(String packageName) {
-        return ConfigManager.getInstance().disableModule(packageName);
+//        return ConfigManager.getInstance().disableModule(packageName);
+        return false;
     }
 
-    @Override
-    public boolean isVerboseLog() {
-        return ConfigManager.getInstance().verboseLog();
-    }
-
-    @Override
-    public void setVerboseLog(boolean enabled) {
-        ConfigManager.getInstance().setVerboseLog(enabled);
-    }
-
-    @Override
-    public ParcelFileDescriptor getVerboseLog() {
-        return ConfigManager.getInstance().getVerboseLog();
-    }
-
-    @Override
-    public ParcelFileDescriptor getModulesLog() {
-        ServiceManager.getLogcatService().checkLogFile();
-        return ConfigManager.getInstance().getModulesLog();
-    }
-
-    @Override
-    public boolean clearLogs(boolean verbose) {
-        return ConfigManager.getInstance().clearLogs(verbose);
-    }
+//    @Override
+//    public boolean isVerboseLog() {
+//        return ConfigManager.getInstance().verboseLog();
+//    }
+//
+//    @Override
+//    public void setVerboseLog(boolean enabled) {
+//        ConfigManager.getInstance().setVerboseLog(enabled);
+//    }
+//
+//    @Override
+//    public ParcelFileDescriptor getVerboseLog() {
+//        return ConfigManager.getInstance().getVerboseLog();
+//    }
+//
+//    @Override
+//    public ParcelFileDescriptor getModulesLog() {
+//        ServiceManager.getLogcatService().checkLogFile();
+//        return ConfigManager.getInstance().getModulesLog();
+//        return null;
+//    }
+//
+//    @Override
+//    public boolean clearLogs(boolean verbose) {
+//        return ConfigManager.getInstance().clearLogs(verbose);
+//    }
 
     @Override
     public PackageInfo getPackageInfo(String packageName, int flags, int uid) throws RemoteException {
@@ -463,10 +465,10 @@ public class LSPManagerService extends ILSPManagerService.Stub {
         }
     }
 
-    @Override
-    public void getLogs(ParcelFileDescriptor zipFd) {
-        ConfigFileManager.getLogs(zipFd);
-    }
+//    @Override
+//    public void getLogs(ParcelFileDescriptor zipFd) {
+//        ConfigFileManager.getLogs(zipFd);
+//    }
 
     @Override
     public void restartFor(Intent intent) throws RemoteException {
@@ -474,7 +476,8 @@ public class LSPManagerService extends ILSPManagerService.Stub {
 
     @Override
     public List<String> getDenyListPackages() {
-        return ConfigManager.getInstance().getDenyListPackages();
+//        return ConfigManager.getInstance().getDenyListPackages();
+        return new ArrayList<>();
     }
 
     @Override
@@ -508,20 +511,20 @@ public class LSPManagerService extends ILSPManagerService.Stub {
         PackageService.clearApplicationProfileData(packageName);
     }
 
-    @Override
-    public boolean enableStatusNotification() {
-        return ConfigManager.getInstance().enableStatusNotification();
-    }
-
-    @Override
-    public void setEnableStatusNotification(boolean enable) {
-        ConfigManager.getInstance().setEnableStatusNotification(enable);
-        if (enable) {
-            LSPNotificationManager.notifyStatusNotification();
-        } else {
-            LSPNotificationManager.cancelStatusNotification();
-        }
-    }
+//    @Override
+//    public boolean enableStatusNotification() {
+//        return ConfigManager.getInstance().enableStatusNotification();
+//    }
+//
+//    @Override
+//    public void setEnableStatusNotification(boolean enable) {
+//        ConfigManager.getInstance().setEnableStatusNotification(enable);
+//        if (enable) {
+//            LSPNotificationManager.notifyStatusNotification();
+//        } else {
+//            LSPNotificationManager.cancelStatusNotification();
+//        }
+//    }
 
     @Override
     public boolean performDexOptMode(String packageName) throws RemoteException {
@@ -530,12 +533,13 @@ public class LSPManagerService extends ILSPManagerService.Stub {
 
     @Override
     public boolean getDexObfuscate() {
-        return ConfigManager.getInstance().dexObfuscate();
+//        return ConfigManager.getInstance().dexObfuscate();
+        return true;
     }
 
     @Override
     public void setDexObfuscate(boolean enabled) {
-        ConfigManager.getInstance().setDexObfuscate(enabled);
+//        ConfigManager.getInstance().setDexObfuscate(enabled);
     }
 
     @Override
@@ -547,23 +551,25 @@ public class LSPManagerService extends ILSPManagerService.Stub {
         }
     }
 
-    @Override
-    public void setLogWatchdog(boolean enabled) {
-        ConfigManager.getInstance().setLogWatchdog(enabled);
-    }
-
-    @Override
-    public boolean isLogWatchdogEnabled() {
-        return ConfigManager.getInstance().isLogWatchdogEnabled();
-    }
+//    @Override
+//    public void setLogWatchdog(boolean enabled) {
+//        ConfigManager.getInstance().setLogWatchdog(enabled);
+//    }
+//
+//    @Override
+//    public boolean isLogWatchdogEnabled() {
+//        return ConfigManager.getInstance().isLogWatchdogEnabled();
+//    }
 
     @Override
     public boolean setAutoInclude(String packageName, boolean enabled) {
-        return ConfigManager.getInstance().setAutoInclude(packageName, enabled);
+//        return ConfigManager.getInstance().setAutoInclude(packageName, enabled);
+        return true;
     }
 
     @Override
     public boolean getAutoInclude(String packageName) {
-        return ConfigManager.getInstance().getAutoInclude(packageName);
+//        return ConfigManager.getInstance().getAutoInclude(packageName);
+        return true;
     }
 }

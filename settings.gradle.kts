@@ -27,7 +27,8 @@ dependencyResolutionManagement {
 rootProject.name = "LSPosed"
 include(
     ":apache",
-//    ":app", 移除 manager app
+// 移除 manager app
+//    ":app",
     ":axml",
     ":core",
     ":daemon",

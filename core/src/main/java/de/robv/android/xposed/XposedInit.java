@@ -63,7 +63,7 @@ import de.robv.android.xposed.callbacks.XCallback;
 import hidden.HiddenApiBridge;
 
 public final class XposedInit {
-    private static final String TAG = XposedBridge.TAG;
+    private static final String TAG = "LSP_XposedInit";
     public static boolean startsSystemServer = false;
 
     public static volatile boolean disableResources = false;

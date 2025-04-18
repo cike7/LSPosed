@@ -104,7 +104,7 @@ public class BridgeService {
         try {
             ACTION action = ACTION.values()[data.readInt()];
 
-            Log.d(TAG, "onTransact: action=" + action + ", callingUid=" + Binder.getCallingUid() + ", callingPid=" + Binder.getCallingPid());
+//            Log.d(TAG, "onTransact: action=" + action + ", callingUid=" + Binder.getCallingUid() + ", callingPid=" + Binder.getCallingPid());
 
             switch (action) {
                 case ACTION_SEND_BINDER: {

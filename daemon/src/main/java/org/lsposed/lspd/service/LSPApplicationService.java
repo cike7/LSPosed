@@ -85,6 +85,7 @@ public class LSPApplicationService extends ILSPApplicationService.Stub {
         Log.d(TAG, "LSPApplicationService.onTransact: code=" + code);
         switch (code) {
             case DEX_TRANSACTION_CODE: {
+                Log.i("LSPoseed", "请求 lspd.dex 的 fd 和 size");
                 var shm = ConfigManager.getInstance().getPreloadDex();
                 if (shm == null) return false;
                 // assume that write only a fd
@@ -93,7 +94,9 @@ public class LSPApplicationService extends ILSPApplicationService.Stub {
                 return true;
             }
             case OBFUSCATION_MAP_TRANSACTION_CODE: {
-                var obfuscation = ConfigManager.getInstance().dexObfuscate();
+                Log.i("LSPoseed", "请求 lspd.dex 的混淆后的类名称和路径");
+//                var obfuscation = ConfigManager.getInstance().dexObfuscate();
+                var obfuscation = true;
                 var signatures = ObfuscationManager.getSignatures();
                 reply.writeInt(signatures.size() * 2);
                 for (Map.Entry<String, String> entry : signatures.entrySet()) {
@@ -118,44 +121,54 @@ public class LSPApplicationService extends ILSPApplicationService.Stub {
 
     private List<Module> getAllModulesList() throws RemoteException {
         var processInfo = ensureRegistered();
-        if (processInfo.uid == Process.SYSTEM_UID && processInfo.processName.equals("system")) {
-            return ConfigManager.getInstance().getModulesForSystemServer();
+//        if (processInfo.uid == Process.SYSTEM_UID && processInfo.processName.equals("system")) {
+//            return ConfigManager.getInstance().getModulesForSystemServer();
+//        }
+//        if (ServiceManager.getManagerService().isRunningManager(processInfo.pid, processInfo.uid))
+//            return Collections.emptyList();
+//        return ConfigManager.getInstance().getModulesForProcess(processInfo.processName, processInfo.uid);
+        // 如果模块作用范围包含 system 则表示这个模块是要在 system 启动时执行
+        // app加载对自己作用的模块
+        var array = ConfigManager.getInstance().getModulesForProcess(processInfo.processName);
+        for (var m : array) {
+            Log.i("LSPoseed", "hook目标:" + processInfo.processName + ", lsp模块:" + m.packageName);
         }
-        if (ServiceManager.getManagerService().isRunningManager(processInfo.pid, processInfo.uid))
-            return Collections.emptyList();
-        return ConfigManager.getInstance().getModulesForProcess(processInfo.processName, processInfo.uid);
+        return array;
     }
 
-    @Override
-    public boolean isLogMuted() throws RemoteException {
-        return !ServiceManager.getManagerService().isVerboseLog();
-    }
+//    @Override
+//    public boolean isLogMuted() throws RemoteException {
+//        return !ServiceManager.getManagerService().isVerboseLog();
+//    }
 
     @Override
     public List<Module> getLegacyModulesList() throws RemoteException {
+        Log.i("LSPoseed", "加载自定义 Xposed 模块路径");
         return getAllModulesList().stream().filter(m -> m.file.legacy).collect(Collectors.toList());
     }
 
     @Override
     public List<Module> getModulesList() throws RemoteException {
+        Log.i("LSPoseed", "加载自定义 LSPosed 模块路径");
         return getAllModulesList().stream().filter(m -> !m.file.legacy).collect(Collectors.toList());
     }
 
     @Override
     public String getPrefsPath(String packageName) throws RemoteException {
-        ensureRegistered();
-        return ConfigManager.getInstance().getPrefsPath(packageName, getCallingUid());
+//        ensureRegistered();
+//        return ConfigManager.getInstance().getPrefsPath(packageName, getCallingUid());
+        return "";
     }
 
-    @Override
-    public ParcelFileDescriptor requestInjectedManagerBinder(List<IBinder> binder) throws RemoteException {
-        var processInfo = ensureRegistered();
-        if (ServiceManager.getManagerService().postStartManager(processInfo.pid, processInfo.uid) ||
-                ConfigManager.getInstance().isManager(processInfo.uid)) {
-            binder.add(ServiceManager.getManagerService().obtainManagerBinder(processInfo.heartBeat, processInfo.pid, processInfo.uid));
-        }
-        return ConfigManager.getInstance().getManagerApk();
-    }
+//    @Override
+//    public ParcelFileDescriptor requestInjectedManagerBinder(List<IBinder> binder) throws RemoteException {
+//        var processInfo = ensureRegistered();
+//        if (ServiceManager.getManagerService().postStartManager(processInfo.pid, processInfo.uid) ||
+//                ConfigManager.getInstance().isManager(processInfo.uid)) {
+//            binder.add(ServiceManager.getManagerService().obtainManagerBinder(processInfo.heartBeat, processInfo.pid, processInfo.uid));
+//        }
+//        return ConfigManager.getInstance().getManagerApk();
+//    }
 
     public boolean hasRegister(int uid, int pid) {
         return processes.containsKey(new Pair<>(uid, pid));

@@ -55,7 +55,7 @@ public class LogcatService implements Runnable {
         String classPath = System.getProperty("java.class.path");
         var abi = Process.is64Bit() ? Build.SUPPORTED_64_BIT_ABIS[0] : Build.SUPPORTED_32_BIT_ABIS[0];
         System.load(classPath + "!/lib/" + abi + "/" + System.mapLibraryName("daemon"));
-        ConfigFileManager.moveLogDir();
+//        ConfigFileManager.moveLogDir();
 
         // Meizu devices set this prop and prevent debug logs from being recorded
         if (SystemProperties.getInt("persist.sys.log_reject_level", 0) > 0) {
@@ -174,49 +174,49 @@ public class LogcatService implements Runnable {
         thread.start();
     }
 
-    public void startVerbose() {
-        Log.i(TAG, "!!start_verbose!!");
-    }
-
-    public void stopVerbose() {
-        Log.i(TAG, "!!stop_verbose!!");
-    }
-
-    public void enableWatchdog() {
-        Log.i(TAG, "!!start_watchdog!!");
-    }
-
-    public void disableWatchdog() {
-        Log.i(TAG, "!!stop_watchdog!!");
-    }
-
-    public void refresh(boolean isVerboseLog) {
-        if (isVerboseLog) {
-            Log.i(TAG, "!!refresh_verbose!!");
-        } else {
-            Log.i(TAG, "!!refresh_modules!!");
-        }
-    }
+//    public void startVerbose() {
+//        Log.i(TAG, "!!start_verbose!!");
+//    }
+//
+//    public void stopVerbose() {
+//        Log.i(TAG, "!!stop_verbose!!");
+//    }
+//
+//    public void enableWatchdog() {
+//        Log.i(TAG, "!!start_watchdog!!");
+//    }
+//
+//    public void disableWatchdog() {
+//        Log.i(TAG, "!!stop_watchdog!!");
+//    }
+//
+//    public void refresh(boolean isVerboseLog) {
+//        if (isVerboseLog) {
+//            Log.i(TAG, "!!refresh_verbose!!");
+//        } else {
+//            Log.i(TAG, "!!refresh_modules!!");
+//        }
+//    }
 
     private static Path fdToPath(int fd) {
         if (fd == -1) return null;
         else return Paths.get("/proc/self/fd", String.valueOf(fd));
     }
 
-    public File getVerboseLog() {
-        var path = fdToPath(verboseFd);
-        return path == null ? null : path.toFile();
-    }
-
-    public File getModulesLog() {
-        var path = fdToPath(modulesFd);
-        return path == null ? null : path.toFile();
-    }
-
-    public void checkLogFile() {
-        if (modulesFd == -1)
-            refresh(false);
-        if (verboseFd == -1)
-            refresh(true);
-    }
+//    public File getVerboseLog() {
+//        var path = fdToPath(verboseFd);
+//        return path == null ? null : path.toFile();
+//    }
+//
+//    public File getModulesLog() {
+//        var path = fdToPath(modulesFd);
+//        return path == null ? null : path.toFile();
+//    }
+//
+//    public void checkLogFile() {
+//        if (modulesFd == -1)
+//            refresh(false);
+//        if (verboseFd == -1)
+//            refresh(true);
+//    }
 }

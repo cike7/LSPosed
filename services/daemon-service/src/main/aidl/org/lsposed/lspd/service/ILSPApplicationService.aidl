@@ -3,7 +3,7 @@ package org.lsposed.lspd.service;
 import org.lsposed.lspd.models.Module;
 
 interface ILSPApplicationService {
-    boolean isLogMuted();
+//    boolean isLogMuted();
 
     List<Module> getLegacyModulesList();
 
@@ -11,5 +11,5 @@ interface ILSPApplicationService {
 
     String getPrefsPath(String packageName);
 
-    ParcelFileDescriptor requestInjectedManagerBinder(out List<IBinder> binder);
+//    ParcelFileDescriptor requestInjectedManagerBinder(out List<IBinder> binder);
 }

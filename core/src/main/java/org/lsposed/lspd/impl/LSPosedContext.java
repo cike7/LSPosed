@@ -65,21 +65,28 @@ public class LSPosedContext implements XposedInterface {
     }
 
     public static void callOnPackageLoaded(XposedModuleInterface.PackageLoadedParam param) {
+        // TODO 未修复：modules 元素的名字应该是包名，这里变成了类名
+        Log.i(TAG,"callOnPackageLoaded，size:" + modules.size());
         for (XposedModule module : modules) {
+            Log.i(TAG,"进入app，callOnPackageLoaded item:" + module.getApplicationInfo());
             try {
                 module.onPackageLoaded(param);
             } catch (Throwable t) {
-                Log.e(TAG, "Error when calling onPackageLoaded of " + module.getApplicationInfo().packageName, t);
+                Log.e(TAG, "Error when calling onPackageLoaded of " + module.getApplicationInfo(), t);
+                t.printStackTrace();
             }
         }
     }
 
     public static void callOnSystemServerLoaded(XposedModuleInterface.SystemServerLoadedParam param) {
+        Log.i(TAG,"callOnSystemServerLoaded: " + modules.size());
         for (XposedModule module : modules) {
+            Log.i(TAG,"进入system，callOnSystemServerLoaded item:" + module.getApplicationInfo());
             try {
                 module.onSystemServerLoaded(param);
             } catch (Throwable t) {
-                Log.e(TAG, "Error when calling onSystemServerLoaded of " + module.getApplicationInfo().packageName, t);
+                Log.e(TAG, "Error when calling onSystemServerLoaded of " + module.getApplicationInfo(), t);
+                t.printStackTrace();
             }
         }
     }

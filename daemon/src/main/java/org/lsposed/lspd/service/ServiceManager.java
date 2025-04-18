@@ -20,7 +20,6 @@
 package org.lsposed.lspd.service;
 
 import android.app.ActivityThread;
-import android.app.Notification;
 import android.content.Context;
 import android.ddm.DdmHandleAppName;
 import android.os.Binder;
@@ -40,11 +39,8 @@ import androidx.annotation.RequiresApi;
 import com.android.internal.os.BinderInternal;
 
 import org.lsposed.daemon.BuildConfig;
-import org.lsposed.lspd.util.FakeContext;
 
 import java.io.File;
-import java.lang.AbstractMethodError;
-import java.lang.Class;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -123,8 +119,8 @@ public class ServiceManager {
         // --- DO NOT call ConfigManager.getInstance later!!! ---
 
         // Unblock log watchdog before starting anything else
-        if (configManager.isLogWatchdogEnabled())
-            logcatService.enableWatchdog();
+//        if (configManager.isLogWatchdogEnabled())
+//            logcatService.enableWatchdog();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             permissionManagerWorkaround();
@@ -155,7 +151,7 @@ public class ServiceManager {
 
         ConfigFileManager.reloadConfiguration();
 
-        notificationWorkaround();
+//        notificationWorkaround();
 
         BridgeService.send(mainService, new BridgeService.Listener() {
             @Override
@@ -182,9 +178,9 @@ public class ServiceManager {
         });
 
         // Force logging on boot, now let's see if we need to stop logging
-        if (!configManager.verboseLog()) {
-            logcatService.stopVerbose();
-        }
+//        if (!configManager.verboseLog()) {
+//            logcatService.stopVerbose();
+//        }
 
         Looper.loop();
         throw new RuntimeException("Main thread loop unexpectedly exited");
@@ -204,9 +200,9 @@ public class ServiceManager {
         return managerService;
     }
 
-    public static LogcatService getLogcatService() {
-        return logcatService;
-    }
+//    public static LogcatService getLogcatService() {
+//        return logcatService;
+//    }
 
     public static boolean systemServerRequested() {
         return systemServerService.systemServerRequested();
@@ -243,28 +239,28 @@ public class ServiceManager {
         }
     }
 
-    private static void notificationWorkaround() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            try {
-                Class feature = Class.forName("android.app.FeatureFlagsImpl");
-                Field systemui_is_cached = feature.getDeclaredField("systemui_is_cached");
-                systemui_is_cached.setAccessible(true);
-                systemui_is_cached.set(null, true);
-                Log.d(TAG, "set flag systemui_is_cached to true");
-            } catch (Throwable e) {
-                Log.e(TAG, "failed to change feature flags", e);
-            }
-        }
-
-        try {
-            new Notification.Builder(new FakeContext(), "notification_workaround").build();
-        } catch (AbstractMethodError e) {
-            FakeContext.nullProvider = ! FakeContext.nullProvider;
-        } catch (Throwable e) {
-            Log.e(TAG, "failed to build notifications", e);
-        }
-
-    }
+//    private static void notificationWorkaround() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+//            try {
+//                Class feature = Class.forName("android.app.FeatureFlagsImpl");
+//                Field systemui_is_cached = feature.getDeclaredField("systemui_is_cached");
+//                systemui_is_cached.setAccessible(true);
+//                systemui_is_cached.set(null, true);
+//                Log.d(TAG, "set flag systemui_is_cached to true");
+//            } catch (Throwable e) {
+//                Log.e(TAG, "failed to change feature flags", e);
+//            }
+//        }
+//
+//        try {
+//            new Notification.Builder(new FakeContext(), "notification_workaround").build();
+//        } catch (AbstractMethodError e) {
+//            FakeContext.nullProvider = ! FakeContext.nullProvider;
+//        } catch (Throwable e) {
+//            Log.e(TAG, "failed to build notifications", e);
+//        }
+//
+//    }
 
     private static class BinderProxy extends Binder {
         private static final Method rawGetService;
@@ -277,6 +273,7 @@ public class ServiceManager {
                 throw new RuntimeException(e);
             }
         }
+
         private IBinder mReal = null;
         private final String mName;
 
@@ -290,7 +287,7 @@ public class ServiceManager {
                 if (mReal == null) {
                     try {
                         mReal = (IBinder) rawGetService.invoke(null, mName);
-                    } catch (IllegalAccessException | InvocationTargetException ignored){
+                    } catch (IllegalAccessException | InvocationTargetException ignored) {
 
                     }
                 }

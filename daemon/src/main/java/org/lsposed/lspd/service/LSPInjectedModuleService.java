@@ -11,6 +11,7 @@ import android.util.Log;
 
 import org.lsposed.lspd.models.Module;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,8 +38,9 @@ public class LSPInjectedModuleService extends ILSPInjectedModuleService.Stub {
     @Override
     public Bundle requestRemotePreferences(String group, IRemotePreferenceCallback callback) {
         var bundle = new Bundle();
-        var userId = Binder.getCallingUid() / PER_USER_RANGE;
-        bundle.putSerializable("map", ConfigManager.getInstance().getModulePrefs(mPackageName, userId, group));
+//        var userId = Binder.getCallingUid() / PER_USER_RANGE;
+//        bundle.putSerializable("map", ConfigManager.getInstance().getModulePrefs(mPackageName, userId, group));
+        bundle.putSerializable("map", new HashMap<>());
         if (callback != null) {
             var groupCallbacks = callbacks.computeIfAbsent(group, k -> ConcurrentHashMap.newKeySet());
             groupCallbacks.add(callback);

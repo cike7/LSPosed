@@ -153,6 +153,10 @@ val generateWebRoot = tasks.register<Copy>("generateWebRoot") {
 }
 
 fun afterEval() = android.applicationVariants.forEach { variant ->
+//    if (variant.buildType.name == "debug") {
+    if (variant.buildType.name == "release") {
+        return@forEach
+    }
     val variantCapped = variant.name.replaceFirstChar { it.uppercase() }
     val variantLowered = variant.name.lowercase()
     val buildTypeCapped = variant.buildType.name.replaceFirstChar { it.uppercase() }

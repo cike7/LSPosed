@@ -21,9 +21,7 @@ package org.lsposed.lspd.service;
 
 import static org.lsposed.lspd.service.PackageService.PER_USER_RANGE;
 
-import android.content.AttributionSource;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
@@ -37,11 +35,10 @@ import org.lsposed.lspd.models.Module;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.github.libxposed.service.IXposedScopeCallback;
@@ -52,63 +49,63 @@ public class LSPModuleService extends IXposedService.Stub {
     private final static String TAG = "LSPosedModuleService";
 
     private final static Set<Integer> uidSet = ConcurrentHashMap.newKeySet();
-    private final static Map<Module, LSPModuleService> serviceMap = Collections.synchronizedMap(new WeakHashMap<>());
+//    private final static Map<Module, LSPModuleService> serviceMap = Collections.synchronizedMap(new WeakHashMap<>());
 
     public final static String FILES_DIR = "files";
 
     private final @NonNull
     Module loadedModule;
 
-    static void uidClear() {
-        uidSet.clear();
-    }
-
-    static void uidStarts(int uid) {
-        if (!uidSet.contains(uid)) {
-            uidSet.add(uid);
-            var module = ConfigManager.getInstance().getModule(uid);
-            if (module != null && module.file != null && !module.file.legacy) {
-                var service = serviceMap.computeIfAbsent(module, LSPModuleService::new);
-                service.sendBinder(uid);
-            }
-        }
-    }
-
-    static void uidGone(int uid) {
-        uidSet.remove(uid);
-    }
-
-    private void sendBinder(int uid) {
-        var name = loadedModule.packageName;
-        try {
-            int userId = uid / PackageService.PER_USER_RANGE;
-            var authority = name + AUTHORITY_SUFFIX;
-            var provider = ActivityManagerService.getContentProvider(authority, userId);
-            if (provider == null) {
-                Log.d(TAG, "no service provider for " + name);
-                return;
-            }
-            var extra = new Bundle();
-            extra.putBinder("binder", asBinder());
-            Bundle reply = null;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                reply = provider.call(new AttributionSource.Builder(1000).setPackageName("android").build(), authority, SEND_BINDER, null, extra);
-            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-                reply = provider.call("android", null, authority, SEND_BINDER, null, extra);
-            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-                reply = provider.call("android", authority, SEND_BINDER, null, extra);
-            } else {
-                reply = provider.call("android", SEND_BINDER, null, extra);
-            }
-            if (reply != null) {
-                Log.d(TAG, "sent module binder to " + name);
-            } else {
-                Log.w(TAG, "failed to send module binder to " + name);
-            }
-        } catch (Throwable e) {
-            Log.w(TAG, "failed to send module binder for uid " + uid, e);
-        }
-    }
+//    static void uidClear() {
+//        uidSet.clear();
+//    }
+//
+//    static void uidStarts(int uid) {
+//        if (!uidSet.contains(uid)) {
+//            uidSet.add(uid);
+//            var module = ConfigManager.getInstance().getModule(uid);
+//            if (module != null && module.file != null && !module.file.legacy) {
+//                var service = serviceMap.computeIfAbsent(module, LSPModuleService::new);
+//                service.sendBinder(uid);
+//            }
+//        }
+//    }
+//
+//    static void uidGone(int uid) {
+//        uidSet.remove(uid);
+//    }
+//
+//    private void sendBinder(int uid) {
+//        var name = loadedModule.packageName;
+//        try {
+//            int userId = uid / PackageService.PER_USER_RANGE;
+//            var authority = name + AUTHORITY_SUFFIX;
+//            var provider = ActivityManagerService.getContentProvider(authority, userId);
+//            if (provider == null) {
+//                Log.d(TAG, "no service provider for " + name);
+//                return;
+//            }
+//            var extra = new Bundle();
+//            extra.putBinder("binder", asBinder());
+//            Bundle reply = null;
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//                reply = provider.call(new AttributionSource.Builder(1000).setPackageName("android").build(), authority, SEND_BINDER, null, extra);
+//            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
+//                reply = provider.call("android", null, authority, SEND_BINDER, null, extra);
+//            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+//                reply = provider.call("android", authority, SEND_BINDER, null, extra);
+//            } else {
+//                reply = provider.call("android", SEND_BINDER, null, extra);
+//            }
+//            if (reply != null) {
+//                Log.d(TAG, "sent module binder to " + name);
+//            } else {
+//                Log.w(TAG, "failed to send module binder to " + name);
+//            }
+//        } catch (Throwable e) {
+//            Log.w(TAG, "failed to send module binder for uid " + uid, e);
+//        }
+//    }
 
     LSPModuleService(@NonNull Module module) {
         loadedModule = module;
@@ -156,43 +153,45 @@ public class LSPModuleService extends IXposedService.Stub {
     public List<String> getScope() throws RemoteException {
         ensureModule();
         ArrayList<String> res = new ArrayList<>();
-        var scope = ConfigManager.getInstance().getModuleScope(loadedModule.packageName);
-        if (scope == null) return res;
-        for (var s : scope) {
-            res.add(s.packageName);
-        }
+//        var scope = ConfigManager.getInstance().getModuleScope(loadedModule.packageName);
+//        if (scope == null) return res;
+//        for (var s : scope) {
+//            res.add(s.packageName);
+//        }
         return res;
     }
 
     @Override
     public void requestScope(String packageName, IXposedScopeCallback callback) throws RemoteException {
-        var userId = ensureModule();
-        if (ConfigManager.getInstance().scopeRequestBlocked(loadedModule.packageName)) {
-            callback.onScopeRequestDenied(packageName);
-        } else {
-            LSPNotificationManager.requestModuleScope(loadedModule.packageName, userId, packageName, callback);
-            callback.onScopeRequestPrompted(packageName);
-        }
+//        var userId = ensureModule();
+//        if (ConfigManager.getInstance().scopeRequestBlocked(loadedModule.packageName)) {
+//            callback.onScopeRequestDenied(packageName);
+//        } else {
+//            LSPNotificationManager.requestModuleScope(loadedModule.packageName, userId, packageName, callback);
+//            callback.onScopeRequestPrompted(packageName);
+//        }
     }
 
     @Override
     public String removeScope(String packageName) throws RemoteException {
-        var userId = ensureModule();
-        try {
-            if (!ConfigManager.getInstance().removeModuleScope(loadedModule.packageName, packageName, userId)) {
-                return "Invalid request";
-            }
-            return null;
-        } catch (Throwable e) {
-            return e.getMessage();
-        }
+//        var userId = ensureModule();
+//        try {
+//            if (!ConfigManager.getInstance().removeModuleScope(loadedModule.packageName, packageName, userId)) {
+//                return "Invalid request";
+//            }
+//            return null;
+//        } catch (Throwable e) {
+//            return e.getMessage();
+//        }
+        return null;
     }
 
     @Override
     public Bundle requestRemotePreferences(String group) throws RemoteException {
         var userId = ensureModule();
         var bundle = new Bundle();
-        bundle.putSerializable("map", ConfigManager.getInstance().getModulePrefs(loadedModule.packageName, userId, group));
+//        bundle.putSerializable("map", ConfigManager.getInstance().getModulePrefs(loadedModule.packageName, userId, group));
+        bundle.putSerializable("map", new HashMap<>());
         return bundle;
     }
 
@@ -217,7 +216,7 @@ public class LSPModuleService extends IXposedService.Stub {
             }
         }
         try {
-            ConfigManager.getInstance().updateModulePrefs(loadedModule.packageName, userId, group, values);
+//            ConfigManager.getInstance().updateModulePrefs(loadedModule.packageName, userId, group, values);
             ((LSPInjectedModuleService) loadedModule.service).onUpdateRemotePreferences(group, diff);
         } catch (Throwable e) {
             throw new RemoteException(e.getMessage());
@@ -226,8 +225,8 @@ public class LSPModuleService extends IXposedService.Stub {
 
     @Override
     public void deleteRemotePreferences(String group) throws RemoteException {
-        var userId = ensureModule();
-        ConfigManager.getInstance().deleteModulePrefs(loadedModule.packageName, userId, group);
+//        var userId = ensureModule();
+//        ConfigManager.getInstance().deleteModulePrefs(loadedModule.packageName, userId, group);
     }
 
     @Override

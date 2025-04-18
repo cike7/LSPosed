@@ -26,13 +26,13 @@ interface ILSPManagerService {
 
     List<Application> getModuleScope(String packageName) = 7;
 
-    boolean isVerboseLog() = 11;
+//    boolean isVerboseLog() = 11;
 
-    void setVerboseLog(boolean enabled) = 12;
+//    void setVerboseLog(boolean enabled) = 12;
 
-    ParcelFileDescriptor getVerboseLog() = 16;
+//    ParcelFileDescriptor getVerboseLog() = 16;
 
-    ParcelFileDescriptor getModulesLog() = 17;
+//    ParcelFileDescriptor getModulesLog() = 17;
 
     int getXposedVersionCode() = 18;
 
@@ -40,7 +40,7 @@ interface ILSPManagerService {
 
     int getXposedApiVersion() = 20;
 
-    boolean clearLogs(boolean verbose) = 21;
+//    boolean clearLogs(boolean verbose) = 21;
 
     PackageInfo getPackageInfo(String packageName, int flags, int uid) = 22;
 
@@ -66,7 +66,7 @@ interface ILSPManagerService {
 
     void setHiddenIcon(boolean hide) = 33;
 
-    void getLogs(in ParcelFileDescriptor zipFd) = 34;
+//    void getLogs(in ParcelFileDescriptor zipFd) = 34;
 
     void restartFor(in Intent intent) = 35;
 
@@ -84,13 +84,13 @@ interface ILSPManagerService {
 
     void clearApplicationProfileData(in String packageName) = 45;
 
-    boolean enableStatusNotification() = 47;
+//    boolean enableStatusNotification() = 47;
 
-    void setEnableStatusNotification(boolean enable) = 48;
+//    void setEnableStatusNotification(boolean enable) = 48;
 
-    void setLogWatchdog(boolean enable) = 49;
+//    void setLogWatchdog(boolean enable) = 49;
 
-    boolean isLogWatchdogEnabled() = 50;
+//    boolean isLogWatchdogEnabled() = 50;
 
     boolean getAutoInclude(String packageName) = 51;
 
