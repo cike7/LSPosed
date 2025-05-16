@@ -1,6 +1,5 @@
 package io.github.libxposed.api;
 
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.os.ParcelFileDescriptor;
 
@@ -55,17 +54,17 @@ public class XposedInterfaceWrapper implements XposedInterface {
         return mBase.hook(origin, hooker);
     }
 
-    @NonNull
-    @Override
-    public <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, @NonNull Class<? extends Hooker> hooker) {
-        return mBase.hookClassInitializer(origin, hooker);
-    }
-
-    @NonNull
-    @Override
-    public <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, int priority, @NonNull Class<? extends Hooker> hooker) {
-        return mBase.hookClassInitializer(origin, priority, hooker);
-    }
+//    @NonNull
+//    @Override
+//    public <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, @NonNull Class<? extends Hooker> hooker) {
+//        return mBase.hookClassInitializer(origin, hooker);
+//    }
+//
+//    @NonNull
+//    @Override
+//    public <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, int priority, @NonNull Class<? extends Hooker> hooker) {
+//        return mBase.hookClassInitializer(origin, priority, hooker);
+//    }
 
     @NonNull
     @Override
@@ -145,11 +144,11 @@ public class XposedInterfaceWrapper implements XposedInterface {
         return mBase.parseDex(dexData, includeAnnotations);
     }
 
-    @NonNull
-    @Override
-    public SharedPreferences getRemotePreferences(@NonNull String name) {
-        return mBase.getRemotePreferences(name);
-    }
+//    @NonNull
+//    @Override
+//    public SharedPreferences getRemotePreferences(@NonNull String name) {
+//        return mBase.getRemotePreferences(name);
+//    }
 
     @NonNull
     @Override

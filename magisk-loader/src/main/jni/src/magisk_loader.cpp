@@ -47,8 +47,8 @@ constexpr int LAST_APP_ZYGOTE_ISOLATED_UID = 98999;
 constexpr int SHARED_RELRO_UID = 1037;
 constexpr int PER_USER_RANGE = 100000;
 
-static constexpr uid_t kAidInjected = INJECTED_AID;
-static constexpr uid_t kAidInet = 3003;
+//static constexpr uid_t kAidInjected = INJECTED_AID;
+//static constexpr uid_t kAidInet = 3003;
 
 void MagiskLoader::LoadDex(JNIEnv *env, PreloadedDex &&dex) {
     auto classloader = JNI_FindClass(env, "java/lang/ClassLoader");
@@ -130,21 +130,21 @@ void MagiskLoader::OnNativeForkAndSpecializePre(JNIEnv *env, jint uid, jintArray
                                                 jstring &nice_name, jboolean is_child_zygote,
                                                 jstring app_data_dir) {
     jboolean is_manager = JNI_FALSE;
-    if (uid == kAidInjected) {
-        const JUTFString name(env, nice_name);
-        if (name.get() == "org.lsposed.manager"sv) {
-            int array_size = gids ? env->GetArrayLength(gids) : 0;
-            auto region = std::make_unique<jint[]>(array_size + 1);
-            auto *new_gids = env->NewIntArray(array_size + 1);
-            if (gids) env->GetIntArrayRegion(gids, 0, array_size, region.get());
-            region.get()[array_size] = kAidInet;
-            env->SetIntArrayRegion(new_gids, 0, array_size + 1, region.get());
-            if (gids) env->SetIntArrayRegion(gids, 0, 1, region.get() + array_size);
-            gids = new_gids;
-            nice_name = JNI_NewStringUTF(env, "com.android.shell").release();
-            is_manager = JNI_TRUE;
-        }
-    }
+//    if (uid == kAidInjected) {
+//        const JUTFString name(env, nice_name);
+//        if (name.get() == "org.lsposed.manager"sv) {
+//            int array_size = gids ? env->GetArrayLength(gids) : 0;
+//            auto region = std::make_unique<jint[]>(array_size + 1);
+//            auto *new_gids = env->NewIntArray(array_size + 1);
+//            if (gids) env->GetIntArrayRegion(gids, 0, array_size, region.get());
+//            region.get()[array_size] = kAidInet;
+//            env->SetIntArrayRegion(new_gids, 0, array_size + 1, region.get());
+//            if (gids) env->SetIntArrayRegion(gids, 0, 1, region.get() + array_size);
+//            gids = new_gids;
+//            nice_name = JNI_NewStringUTF(env, "com.android.shell").release();
+//            is_manager = JNI_TRUE;
+//        }
+//    }
     is_parasitic_manager = is_manager;
     Service::instance()->InitService(env);
     const auto app_id = uid % PER_USER_RANGE;
@@ -172,7 +172,7 @@ void MagiskLoader::OnNativeForkAndSpecializePre(JNIEnv *env, jint uid, jintArray
 void MagiskLoader::OnNativeForkAndSpecializePost(JNIEnv *env, jstring nice_name, jstring app_dir) {
     const JUTFString process_name(env, nice_name);
     auto *instance = Service::instance();
-    if (is_parasitic_manager) nice_name = JNI_NewStringUTF(env, "org.lsposed.manager").release();
+//    if (is_parasitic_manager) nice_name = JNI_NewStringUTF(env, "org.lsposed.manager").release();
     auto binder =
         skip_ ? ScopedLocalRef<jobject>{env, nullptr} : instance->RequestBinder(env, nice_name);
     if (binder) {

@@ -18,9 +18,10 @@
     public int getUserId();
     public android.os.UserHandle getUser();
 }
--assumenosideeffects class android.util.Log {
-    public static *** v(...);
-    public static *** d(...);
-}
+
 -repackageclasses
 -allowaccessmodification
+
+-assumenosideeffects class android.util.Log {
+    public static *** *(...);
+}

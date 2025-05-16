@@ -1,14 +1,10 @@
 package io.github.libxposed.service;
 
-import android.content.SharedPreferences;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -125,13 +121,13 @@ public final class XposedService {
         FRAMEWORK_PRIVILEGE_APP,
 
         /**
-         * The framework is embedded in the hooked app, which means {@link #getRemotePreferences} will be null and remote file is unsupported.
+         * The framework is embedded in the hooked app, which means {@link } will be null and remote file is unsupported.
          */
         FRAMEWORK_PRIVILEGE_EMBEDDED
     }
 
     private final IXposedService mService;
-    private final Map<String, RemotePreferences> mRemotePrefs = new HashMap<>();
+//    private final Map<String, RemotePreferences> mRemotePrefs = new HashMap<>();
 
     final ReentrantReadWriteLock deletionLock = new ReentrantReadWriteLock();
 
@@ -217,102 +213,102 @@ public final class XposedService {
         }
     }
 
-    /**
-     * Get the application scope of current module.
-     *
-     * @return Module scope
-     * @throws ServiceException If the service is dead or an error occurred
-     */
-    @NonNull
-    public List<String> getScope() {
-        try {
-            return mService.getScope();
-        } catch (RemoteException e) {
-            throw new ServiceException(e);
-        }
-    }
-
-    /**
-     * Request to add a new app to the module scope.
-     *
-     * @param packageName Package name of the app to be added
-     * @param callback    Callback to be invoked when the request is completed or error occurred
-     * @throws ServiceException If the service is dead or an error occurred
-     */
-    public void requestScope(@NonNull String packageName, @NonNull OnScopeEventListener callback) {
-        try {
-            mService.requestScope(packageName, callback.asInterface());
-        } catch (RemoteException e) {
-            throw new ServiceException(e);
-        }
-    }
-
-    /**
-     * Remove an app from the module scope.
-     *
-     * @param packageName Package name of the app to be added
-     * @return null if successful, or non-null with error message
-     * @throws ServiceException If the service is dead or an error occurred
-     */
-    @Nullable
-    public String removeScope(@NonNull String packageName) {
-        try {
-            return mService.removeScope(packageName);
-        } catch (RemoteException e) {
-            throw new ServiceException(e);
-        }
-    }
-
-    /**
-     * Get remote preferences from Xposed framework. If the group does not exist, it will be created.
-     *
-     * @param group Group name
-     * @return The preferences
-     * @throws ServiceException              If the service is dead or an error occurred
-     * @throws UnsupportedOperationException If the framework is embedded
-     */
-    @NonNull
-    public SharedPreferences getRemotePreferences(@NonNull String group) {
-        return mRemotePrefs.computeIfAbsent(group, k -> {
-            try {
-                var instance = RemotePreferences.newInstance(this, k);
-                if (instance == null) {
-                    throw new ServiceException("Framework returns null");
-                }
-                return instance;
-            } catch (RemoteException e) {
-                if (e.getCause() instanceof UnsupportedOperationException cause) {
-                    throw cause;
-                }
-                throw new ServiceException(e);
-            }
-        });
-    }
-
-    /**
-     * Delete a group of remote preferences.
-     *
-     * @param group Group name
-     * @throws ServiceException              If the service is dead or an error occurred
-     * @throws UnsupportedOperationException If the framework is embedded
-     */
-    public void deleteRemotePreferences(@NonNull String group) {
-        deletionLock.writeLock().lock();
-        try {
-            mService.deleteRemotePreferences(group);
-            mRemotePrefs.computeIfPresent(group, (k, v) -> {
-                v.setDeleted();
-                return null;
-            });
-        } catch (RemoteException e) {
-            if (e.getCause() instanceof UnsupportedOperationException cause) {
-                throw cause;
-            }
-            throw new ServiceException(e);
-        } finally {
-            deletionLock.writeLock().unlock();
-        }
-    }
+//    /**
+//     * Get the application scope of current module.
+//     *
+//     * @return Module scope
+//     * @throws ServiceException If the service is dead or an error occurred
+//     */
+//    @NonNull
+//    public List<String> getScope() {
+//        try {
+//            return mService.getScope();
+//        } catch (RemoteException e) {
+//            throw new ServiceException(e);
+//        }
+//    }
+//
+//    /**
+//     * Request to add a new app to the module scope.
+//     *
+//     * @param packageName Package name of the app to be added
+//     * @param callback    Callback to be invoked when the request is completed or error occurred
+//     * @throws ServiceException If the service is dead or an error occurred
+//     */
+//    public void requestScope(@NonNull String packageName, @NonNull OnScopeEventListener callback) {
+//        try {
+//            mService.requestScope(packageName, callback.asInterface());
+//        } catch (RemoteException e) {
+//            throw new ServiceException(e);
+//        }
+//    }
+//
+//    /**
+//     * Remove an app from the module scope.
+//     *
+//     * @param packageName Package name of the app to be added
+//     * @return null if successful, or non-null with error message
+//     * @throws ServiceException If the service is dead or an error occurred
+//     */
+//    @Nullable
+//    public String removeScope(@NonNull String packageName) {
+//        try {
+//            return mService.removeScope(packageName);
+//        } catch (RemoteException e) {
+//            throw new ServiceException(e);
+//        }
+//    }
+//
+//    /**
+//     * Get remote preferences from Xposed framework. If the group does not exist, it will be created.
+//     *
+//     * @param group Group name
+//     * @return The preferences
+//     * @throws ServiceException              If the service is dead or an error occurred
+//     * @throws UnsupportedOperationException If the framework is embedded
+//     */
+//    @NonNull
+//    public SharedPreferences getRemotePreferences(@NonNull String group) {
+//        return mRemotePrefs.computeIfAbsent(group, k -> {
+//            try {
+//                var instance = RemotePreferences.newInstance(this, k);
+//                if (instance == null) {
+//                    throw new ServiceException("Framework returns null");
+//                }
+//                return instance;
+//            } catch (RemoteException e) {
+//                if (e.getCause() instanceof UnsupportedOperationException cause) {
+//                    throw cause;
+//                }
+//                throw new ServiceException(e);
+//            }
+//        });
+//    }
+//
+//    /**
+//     * Delete a group of remote preferences.
+//     *
+//     * @param group Group name
+//     * @throws ServiceException              If the service is dead or an error occurred
+//     * @throws UnsupportedOperationException If the framework is embedded
+//     */
+//    public void deleteRemotePreferences(@NonNull String group) {
+//        deletionLock.writeLock().lock();
+//        try {
+//            mService.deleteRemotePreferences(group);
+//            mRemotePrefs.computeIfPresent(group, (k, v) -> {
+//                v.setDeleted();
+//                return null;
+//            });
+//        } catch (RemoteException e) {
+//            if (e.getCause() instanceof UnsupportedOperationException cause) {
+//                throw cause;
+//            }
+//            throw new ServiceException(e);
+//        } finally {
+//            deletionLock.writeLock().unlock();
+//        }
+//    }
 
     /**
      * List all files in the module's shared data directory.

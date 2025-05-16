@@ -17,10 +17,6 @@
  * Copyright (C) 2021 LSPosed Contributors
  */
 
-import com.android.build.api.dsl.ApplicationExtension
-import com.android.ide.common.signing.KeystoreHelper
-import java.io.PrintStream
-
 plugins {
     alias(libs.plugins.agp.app)
     alias(libs.plugins.lsplugin.resopt)
@@ -117,6 +113,7 @@ android {
 
 dependencies {
 //    implementation(libs.libxposed.`interface`)
+    implementation("com.google.code.gson:gson:2.11.0")
     implementation(libs.agp.apksig)
     implementation(projects.apache)
     implementation(projects.hiddenapi.bridge)

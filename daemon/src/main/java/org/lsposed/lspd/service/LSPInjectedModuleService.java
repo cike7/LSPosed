@@ -35,23 +35,23 @@ public class LSPInjectedModuleService extends ILSPInjectedModuleService.Stub {
         return IXposedService.FRAMEWORK_PRIVILEGE_ROOT;
     }
 
-    @Override
-    public Bundle requestRemotePreferences(String group, IRemotePreferenceCallback callback) {
-        var bundle = new Bundle();
-//        var userId = Binder.getCallingUid() / PER_USER_RANGE;
-//        bundle.putSerializable("map", ConfigManager.getInstance().getModulePrefs(mPackageName, userId, group));
-        bundle.putSerializable("map", new HashMap<>());
-        if (callback != null) {
-            var groupCallbacks = callbacks.computeIfAbsent(group, k -> ConcurrentHashMap.newKeySet());
-            groupCallbacks.add(callback);
-            try {
-                callback.asBinder().linkToDeath(() -> groupCallbacks.remove(callback), 0);
-            } catch (RemoteException e) {
-                Log.w(TAG, "requestRemotePreferences: ", e);
-            }
-        }
-        return bundle;
-    }
+//    @Override
+//    public Bundle requestRemotePreferences(String group, IRemotePreferenceCallback callback) {
+//        var bundle = new Bundle();
+////        var userId = Binder.getCallingUid() / PER_USER_RANGE;
+////        bundle.putSerializable("map", ConfigManager.getInstance().getModulePrefs(mPackageName, userId, group));
+//        bundle.putSerializable("map", new HashMap<>());
+//        if (callback != null) {
+//            var groupCallbacks = callbacks.computeIfAbsent(group, k -> ConcurrentHashMap.newKeySet());
+//            groupCallbacks.add(callback);
+//            try {
+//                callback.asBinder().linkToDeath(() -> groupCallbacks.remove(callback), 0);
+//            } catch (RemoteException e) {
+//                Log.w(TAG, "requestRemotePreferences: ", e);
+//            }
+//        }
+//        return bundle;
+//    }
 
     @Override
     public ParcelFileDescriptor openRemoteFile(String path) throws RemoteException {

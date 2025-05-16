@@ -21,18 +21,12 @@ package org.lsposed.lspd.service;
 
 import static org.lsposed.lspd.service.ServiceManager.TAG;
 
-import android.app.ContentProviderHolder;
 import android.app.IActivityManager;
 import android.app.IApplicationThread;
-import android.app.IServiceConnection;
-import android.app.IUidObserver;
-import android.app.ProfilerInfo;
 import android.content.Context;
-import android.content.IContentProvider;
 import android.content.IIntentReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.UserInfo;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,7 +39,7 @@ public class ActivityManagerService {
     private static IActivityManager am = null;
     private static IBinder binder = null;
     private static IApplicationThread appThread = null;
-    private static IBinder token = null;
+//    private static IBinder token = null;
 
     private static final IBinder.DeathRecipient deathRecipient = new IBinder.DeathRecipient() {
         @Override
@@ -55,7 +49,7 @@ public class ActivityManagerService {
             binder = null;
             am = null;
             appThread = null;
-            token = null;
+//            token = null;
         }
     };
 
@@ -75,40 +69,40 @@ public class ActivityManagerService {
         return am;
     }
 
-    public static int broadcastIntentWithFeature(String callingFeatureId,
-                                                 Intent intent, String resolvedType, IIntentReceiver resultTo, int resultCode,
-                                                 String resultData, Bundle map, String[] requiredPermissions,
-                                                 int appOp, Bundle options, boolean serialized, boolean sticky, int userId) throws RemoteException {
-        IActivityManager am = getActivityManager();
-        if (am == null || appThread == null) return -1;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            try {
-                return am.broadcastIntentWithFeature(appThread, callingFeatureId, intent, resolvedType, resultTo,
-                        resultCode, resultData, null, requiredPermissions, null, null, appOp, null,
-                        serialized, sticky, userId);
-            } catch (NoSuchMethodError ignored) {
-                return am.broadcastIntentWithFeature(appThread, callingFeatureId, intent, resolvedType, resultTo,
-                        resultCode, resultData, null, requiredPermissions, null, appOp, null,
-                        serialized, sticky, userId);
-            }
-        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            return am.broadcastIntentWithFeature(appThread, callingFeatureId, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
-        } else {
-            return am.broadcastIntent(appThread, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
-        }
-    }
-
-    public static void forceStopPackage(String packageName, int userId) throws RemoteException {
-        IActivityManager am = getActivityManager();
-        if (am == null) return;
-        am.forceStopPackage(packageName, userId);
-    }
-
-    public static boolean startUserInBackground(int userId) throws RemoteException {
-        IActivityManager am = getActivityManager();
-        if (am == null) return false;
-        return am.startUserInBackground(userId);
-    }
+//    public static int broadcastIntentWithFeature(String callingFeatureId,
+//                                                 Intent intent, String resolvedType, IIntentReceiver resultTo, int resultCode,
+//                                                 String resultData, Bundle map, String[] requiredPermissions,
+//                                                 int appOp, Bundle options, boolean serialized, boolean sticky, int userId) throws RemoteException {
+//        IActivityManager am = getActivityManager();
+//        if (am == null || appThread == null) return -1;
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            try {
+//                return am.broadcastIntentWithFeature(appThread, callingFeatureId, intent, resolvedType, resultTo,
+//                        resultCode, resultData, null, requiredPermissions, null, null, appOp, null,
+//                        serialized, sticky, userId);
+//            } catch (NoSuchMethodError ignored) {
+//                return am.broadcastIntentWithFeature(appThread, callingFeatureId, intent, resolvedType, resultTo,
+//                        resultCode, resultData, null, requiredPermissions, null, appOp, null,
+//                        serialized, sticky, userId);
+//            }
+//        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
+//            return am.broadcastIntentWithFeature(appThread, callingFeatureId, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
+//        } else {
+//            return am.broadcastIntent(appThread, intent, resolvedType, resultTo, resultCode, resultData, map, requiredPermissions, appOp, options, serialized, sticky, userId);
+//        }
+//    }
+//
+//    public static void forceStopPackage(String packageName, int userId) throws RemoteException {
+//        IActivityManager am = getActivityManager();
+//        if (am == null) return;
+//        am.forceStopPackage(packageName, userId);
+//    }
+//
+//    public static boolean startUserInBackground(int userId) throws RemoteException {
+//        IActivityManager am = getActivityManager();
+//        if (am == null) return false;
+//        return am.startUserInBackground(userId);
+//    }
 
     public static Intent registerReceiver(String callerPackage,
                                           String callingFeatureId, IIntentReceiver receiver, IntentFilter filter,
@@ -137,54 +131,54 @@ public class ActivityManagerService {
         }
     }
 
-    public static int bindService(Intent service,
-                                  String resolvedType, IServiceConnection connection, int flags,
-                                  String callingPackage, int userId) throws RemoteException {
-
-        IActivityManager am = getActivityManager();
-        if (am == null || appThread == null) return -1;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-            return am.bindService(appThread, token, service, resolvedType, connection, (long) flags, callingPackage, userId);
-        else
-            return am.bindService(appThread, token, service, resolvedType, connection, flags, callingPackage, userId);
-    }
-
-    public static boolean unbindService(IServiceConnection connection) throws RemoteException {
-        IActivityManager am = getActivityManager();
-        if (am == null) return false;
-        return am.unbindService(connection);
-    }
-
-    public static int startActivityAsUserWithFeature(String callingPackage,
-                                                     String callingFeatureId, Intent intent, String resolvedType,
-                                                     IBinder resultTo, String resultWho, int requestCode, int flags,
-                                                     ProfilerInfo profilerInfo, Bundle options, int userId) throws RemoteException {
-        IActivityManager am = getActivityManager();
-        if (am == null || appThread == null) return -1;
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return am.startActivityAsUserWithFeature(appThread, callingPackage, callingFeatureId, intent, resolvedType, resultTo, resultWho, requestCode, flags, profilerInfo, options, userId);
-        } else {
-            return am.startActivityAsUser(appThread, callingPackage, intent, resolvedType, resultTo, resultWho, requestCode, flags, profilerInfo, options, userId);
-        }
-    }
+//    public static int bindService(Intent service,
+//                                  String resolvedType, IServiceConnection connection, int flags,
+//                                  String callingPackage, int userId) throws RemoteException {
+//
+//        IActivityManager am = getActivityManager();
+//        if (am == null || appThread == null) return -1;
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+//            return am.bindService(appThread, token, service, resolvedType, connection, (long) flags, callingPackage, userId);
+//        else
+//            return am.bindService(appThread, token, service, resolvedType, connection, flags, callingPackage, userId);
+//    }
+//
+//    public static boolean unbindService(IServiceConnection connection) throws RemoteException {
+//        IActivityManager am = getActivityManager();
+//        if (am == null) return false;
+//        return am.unbindService(connection);
+//    }
+//
+//    public static int startActivityAsUserWithFeature(String callingPackage,
+//                                                     String callingFeatureId, Intent intent, String resolvedType,
+//                                                     IBinder resultTo, String resultWho, int requestCode, int flags,
+//                                                     ProfilerInfo profilerInfo, Bundle options, int userId) throws RemoteException {
+//        IActivityManager am = getActivityManager();
+//        if (am == null || appThread == null) return -1;
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            return am.startActivityAsUserWithFeature(appThread, callingPackage, callingFeatureId, intent, resolvedType, resultTo, resultWho, requestCode, flags, profilerInfo, options, userId);
+//        } else {
+//            return am.startActivityAsUser(appThread, callingPackage, intent, resolvedType, resultTo, resultWho, requestCode, flags, profilerInfo, options, userId);
+//        }
+//    }
 
     public static void onSystemServerContext(IApplicationThread thread, IBinder token) {
         ActivityManagerService.appThread = thread;
-        ActivityManagerService.token = token;
+//        ActivityManagerService.token = token;
     }
 
-    public static boolean switchUser(int userid) throws RemoteException {
-        IActivityManager am = getActivityManager();
-        if (am == null) return false;
-        return am.switchUser(userid);
-    }
-
-    public static UserInfo getCurrentUser() throws RemoteException {
-        IActivityManager am = getActivityManager();
-        if (am == null) return null;
-        return am.getCurrentUser();
-    }
+//    public static boolean switchUser(int userid) throws RemoteException {
+//        IActivityManager am = getActivityManager();
+//        if (am == null) return false;
+//        return am.switchUser(userid);
+//    }
+//
+//    public static UserInfo getCurrentUser() throws RemoteException {
+//        IActivityManager am = getActivityManager();
+//        if (am == null) return null;
+//        return am.getCurrentUser();
+//    }
 
     public static Configuration getConfiguration() throws RemoteException {
         IActivityManager am = getActivityManager();
@@ -192,21 +186,21 @@ public class ActivityManagerService {
         return am.getConfiguration();
     }
 
-    public static IContentProvider getContentProvider(String auth, int userId) throws RemoteException {
-        IActivityManager am = getActivityManager();
-        if (am == null) return null;
-        ContentProviderHolder holder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            holder = am.getContentProviderExternal(auth, userId, token, null);
-        } else {
-            holder = am.getContentProviderExternal(auth, userId, token);
-        }
-        return holder != null ? holder.provider : null;
-    }
-
-    public static void registerUidObserver(IUidObserver observer, int which, int cutpoint, String callingPackage) throws RemoteException {
-        IActivityManager am = getActivityManager();
-        if (am == null) return;
-        am.registerUidObserver(observer, which, cutpoint, callingPackage);
-    }
+//    public static IContentProvider getContentProvider(String auth, int userId) throws RemoteException {
+//        IActivityManager am = getActivityManager();
+//        if (am == null) return null;
+//        ContentProviderHolder holder;
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//            holder = am.getContentProviderExternal(auth, userId, token, null);
+//        } else {
+//            holder = am.getContentProviderExternal(auth, userId, token);
+//        }
+//        return holder != null ? holder.provider : null;
+//    }
+//
+//    public static void registerUidObserver(IUidObserver observer, int which, int cutpoint, String callingPackage) throws RemoteException {
+//        IActivityManager am = getActivityManager();
+//        if (am == null) return;
+//        am.registerUidObserver(observer, which, cutpoint, callingPackage);
+//    }
 }

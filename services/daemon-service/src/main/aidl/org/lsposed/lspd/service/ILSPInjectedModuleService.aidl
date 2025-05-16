@@ -5,7 +5,7 @@ import org.lsposed.lspd.service.IRemotePreferenceCallback;
 interface ILSPInjectedModuleService {
     int getFrameworkPrivilege();
 
-    Bundle requestRemotePreferences(String group, IRemotePreferenceCallback callback);
+//    Bundle requestRemotePreferences(String group, IRemotePreferenceCallback callback);
 
     ParcelFileDescriptor openRemoteFile(String path);
 

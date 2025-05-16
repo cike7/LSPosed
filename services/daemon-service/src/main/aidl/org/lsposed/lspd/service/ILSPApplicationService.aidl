@@ -9,7 +9,7 @@ interface ILSPApplicationService {
 
     List<Module> getModulesList();
 
-    String getPrefsPath(String packageName);
+//    String getPrefsPath(String packageName);
 
 //    ParcelFileDescriptor requestInjectedManagerBinder(out List<IBinder> binder);
 }

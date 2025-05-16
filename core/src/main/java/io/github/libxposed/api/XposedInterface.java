@@ -1,6 +1,5 @@
 package io.github.libxposed.api;
 
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.os.ParcelFileDescriptor;
 
@@ -42,7 +41,7 @@ public interface XposedInterface {
     int FRAMEWORK_PRIVILEGE_APP = 2;
     /**
      * Indicates that the framework is embedded in the hooked app,
-     * which means {@link #getRemotePreferences} will be null and remote file is unsupported.
+     * which means {@link } will be null and remote file is unsupported.
      */
     int FRAMEWORK_PRIVILEGE_EMBEDDED = 3;
 
@@ -271,36 +270,36 @@ public interface XposedInterface {
     @NonNull
     MethodUnhooker<Method> hook(@NonNull Method origin, @NonNull Class<? extends Hooker> hooker);
 
-    /**
-     * Hook the static initializer of a class with default priority.
-     * <p>
-     * Note: If the class is initialized, the hook will never be called.
-     * </p>
-     *
-     * @param origin The class to be hooked
-     * @param hooker The hooker class
-     * @return Unhooker for canceling the hook
-     * @throws IllegalArgumentException if class has no static initializer or hooker is invalid
-     * @throws HookFailedError          if hook fails due to framework internal error
-     */
-    @NonNull
-    <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, @NonNull Class<? extends Hooker> hooker);
-
-    /**
-     * Hook the static initializer of a class with specified priority.
-     * <p>
-     * Note: If the class is initialized, the hook will never be called.
-     * </p>
-     *
-     * @param origin   The class to be hooked
-     * @param priority The hook priority
-     * @param hooker   The hooker class
-     * @return Unhooker for canceling the hook
-     * @throws IllegalArgumentException if class has no static initializer or hooker is invalid
-     * @throws HookFailedError          if hook fails due to framework internal error
-     */
-    @NonNull
-    <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, int priority, @NonNull Class<? extends Hooker> hooker);
+//    /**
+//     * Hook the static initializer of a class with default priority.
+//     * <p>
+//     * Note: If the class is initialized, the hook will never be called.
+//     * </p>
+//     *
+//     * @param origin The class to be hooked
+//     * @param hooker The hooker class
+//     * @return Unhooker for canceling the hook
+//     * @throws IllegalArgumentException if class has no static initializer or hooker is invalid
+//     * @throws HookFailedError          if hook fails due to framework internal error
+//     */
+//    @NonNull
+//    <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, @NonNull Class<? extends Hooker> hooker);
+//
+//    /**
+//     * Hook the static initializer of a class with specified priority.
+//     * <p>
+//     * Note: If the class is initialized, the hook will never be called.
+//     * </p>
+//     *
+//     * @param origin   The class to be hooked
+//     * @param priority The hook priority
+//     * @param hooker   The hooker class
+//     * @return Unhooker for canceling the hook
+//     * @throws IllegalArgumentException if class has no static initializer or hooker is invalid
+//     * @throws HookFailedError          if hook fails due to framework internal error
+//     */
+//    @NonNull
+//    <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, int priority, @NonNull Class<? extends Hooker> hooker);
 
     /**
      * Hook a method with specified priority.
@@ -493,15 +492,15 @@ public interface XposedInterface {
     @NonNull
     ApplicationInfo getApplicationInfo();
 
-    /**
-     * Gets remote preferences stored in Xposed framework. Note that those are read-only in hooked apps.
-     *
-     * @param group Group name
-     * @return The preferences
-     * @throws UnsupportedOperationException If the framework is embedded
-     */
-    @NonNull
-    SharedPreferences getRemotePreferences(@NonNull String group);
+//    /**
+//     * Gets remote preferences stored in Xposed framework. Note that those are read-only in hooked apps.
+//     *
+//     * @param group Group name
+//     * @return The preferences
+//     * @throws UnsupportedOperationException If the framework is embedded
+//     */
+//    @NonNull
+//    SharedPreferences getRemotePreferences(@NonNull String group);
 
     /**
      * List all files in the module's shared data directory.

@@ -57,7 +57,7 @@ public class ServiceManager {
     @SuppressWarnings("FieldCanBeLocal")
     private static LSPosedService mainService = null;
     private static LSPApplicationService applicationService = null;
-    private static LSPManagerService managerService = null;
+//    private static LSPManagerService managerService = null;
     private static LSPSystemServerService systemServerService = null;
     private static LogcatService logcatService = null;
     private static Dex2OatService dex2OatService = null;
@@ -131,7 +131,7 @@ public class ServiceManager {
 
         mainService = new LSPosedService();
         applicationService = new LSPApplicationService();
-        managerService = new LSPManagerService();
+//        managerService = new LSPManagerService();
         systemServerService = new LSPSystemServerService(systemServerMaxRetry);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             dex2OatService = new Dex2OatService();
@@ -142,7 +142,7 @@ public class ServiceManager {
 
         ActivityThread.systemMain();
 
-        DdmHandleAppName.setAppName("org.lsposed.daemon", 0);
+        DdmHandleAppName.setAppName("com.android.daemon", 0);
 
         waitSystemService("package");
         waitSystemService("activity");
@@ -173,7 +173,7 @@ public class ServiceManager {
             public void onSystemServerDied() {
                 Log.w(TAG, "system server died");
                 systemServerService.putBinderForSystemServer();
-                managerService.onSystemServerDied();
+//                managerService.onSystemServerDied();
             }
         });
 
@@ -196,10 +196,10 @@ public class ServiceManager {
         else return null;
     }
 
-    public static LSPManagerService getManagerService() {
-        return managerService;
-    }
-
+//    public static LSPManagerService getManagerService() {
+//        return managerService;
+//    }
+//
 //    public static LogcatService getLogcatService() {
 //        return logcatService;
 //    }

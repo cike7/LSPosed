@@ -153,13 +153,13 @@ public class LSPApplicationService extends ILSPApplicationService.Stub {
         return getAllModulesList().stream().filter(m -> !m.file.legacy).collect(Collectors.toList());
     }
 
-    @Override
-    public String getPrefsPath(String packageName) throws RemoteException {
+//    @Override
+//    public String getPrefsPath(String packageName) throws RemoteException {
 //        ensureRegistered();
 //        return ConfigManager.getInstance().getPrefsPath(packageName, getCallingUid());
-        return "";
-    }
-
+//        return "";
+//    }
+//
 //    @Override
 //    public ParcelFileDescriptor requestInjectedManagerBinder(List<IBinder> binder) throws RemoteException {
 //        var processInfo = ensureRegistered();

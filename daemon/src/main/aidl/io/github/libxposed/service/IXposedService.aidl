@@ -20,14 +20,14 @@ interface IXposedService {
     int getFrameworkPrivilege() = 5;
 
     // scope utilities
-    List<String> getScope() = 10;
-    oneway void requestScope(String packageName, IXposedScopeCallback callback) = 11;
-    String removeScope(String packageName) = 12;
+//    List<String> getScope() = 10;
+//    oneway void requestScope(String packageName, IXposedScopeCallback callback) = 11;
+//    String removeScope(String packageName) = 12;
 
     // remote preference utilities
-    Bundle requestRemotePreferences(String group) = 20;
+//    Bundle requestRemotePreferences(String group) = 20;
     void updateRemotePreferences(String group, in Bundle diff) = 21;
-    void deleteRemotePreferences(String group) = 22;
+//    void deleteRemotePreferences(String group) = 22;
 
     // remote file utilities
     String[] listRemoteFiles() = 30;

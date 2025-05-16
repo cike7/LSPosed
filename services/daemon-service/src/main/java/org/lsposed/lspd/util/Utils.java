@@ -34,7 +34,8 @@ public class Utils {
     public static final boolean isLENOVO = !TextUtils.isEmpty(SystemProperties.get("ro.lenovo.region"));
 
     public class Log {
-        public static boolean muted = false;
+
+        public static boolean muted = true;
 
         public static String getStackTraceString(Throwable tr) {
             return android.util.Log.getStackTraceString(tr);

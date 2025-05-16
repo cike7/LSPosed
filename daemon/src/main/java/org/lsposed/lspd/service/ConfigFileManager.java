@@ -150,7 +150,6 @@ public class ConfigFileManager {
         }
     }
 
-    // 移除 manager app
 //    static ParcelFileDescriptor getManagerApk() throws IOException {
 //        if (fd != null) return fd.dup();
 //        SELinux.setFileContext(managerApkPath.toString(), "u:object_r:system_file:s0");
@@ -232,7 +231,6 @@ public class ConfigFileManager {
         return logDirPath.resolve("kmsg.log").toFile();
     }
 
-    // 移除 log
 //    static void getLogs(ParcelFileDescriptor zipFd) throws IllegalStateException {
 //        try (zipFd; var os = new ZipOutputStream(new FileOutputStream(zipFd.getFileDescriptor()))) {
 //            var comment = String.format(Locale.ROOT, "LSPosed %s %s (%d)",

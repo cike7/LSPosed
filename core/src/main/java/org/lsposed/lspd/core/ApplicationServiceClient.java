@@ -82,15 +82,15 @@ public class ApplicationServiceClient implements ILSPApplicationService, IBinder
         return Collections.emptyList();
     }
 
-    @Override
-    public String getPrefsPath(String packageName) {
-        try {
-            return service.getPrefsPath(packageName);
-        } catch (RemoteException | NullPointerException ignored) {
-        }
-        return null;
-    }
-
+//    @Override
+//    public String getPrefsPath(String packageName) {
+//        try {
+//            return service.getPrefsPath(packageName);
+//        } catch (RemoteException | NullPointerException ignored) {
+//        }
+//        return null;
+//    }
+//
 //    @Override
 //    public ParcelFileDescriptor requestInjectedManagerBinder(List<IBinder> binder) {
 //        try {

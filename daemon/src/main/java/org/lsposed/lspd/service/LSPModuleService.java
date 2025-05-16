@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import io.github.libxposed.service.IXposedScopeCallback;
 import io.github.libxposed.service.IXposedService;
@@ -48,7 +47,7 @@ public class LSPModuleService extends IXposedService.Stub {
 
     private final static String TAG = "LSPosedModuleService";
 
-    private final static Set<Integer> uidSet = ConcurrentHashMap.newKeySet();
+//    private final static Set<Integer> uidSet = ConcurrentHashMap.newKeySet();
 //    private final static Map<Module, LSPModuleService> serviceMap = Collections.synchronizedMap(new WeakHashMap<>());
 
     public final static String FILES_DIR = "files";
@@ -149,55 +148,55 @@ public class LSPModuleService extends IXposedService.Stub {
         return IXposedService.FRAMEWORK_PRIVILEGE_ROOT;
     }
 
-    @Override
-    public List<String> getScope() throws RemoteException {
-        ensureModule();
-        ArrayList<String> res = new ArrayList<>();
-//        var scope = ConfigManager.getInstance().getModuleScope(loadedModule.packageName);
-//        if (scope == null) return res;
-//        for (var s : scope) {
-//            res.add(s.packageName);
-//        }
-        return res;
-    }
+//    @Override
+//    public List<String> getScope() throws RemoteException {
+//        ensureModule();
+//        ArrayList<String> res = new ArrayList<>();
+////        var scope = ConfigManager.getInstance().getModuleScope(loadedModule.packageName);
+////        if (scope == null) return res;
+////        for (var s : scope) {
+////            res.add(s.packageName);
+////        }
+//        return res;
+//    }
+//
+//    @Override
+//    public void requestScope(String packageName, IXposedScopeCallback callback) throws RemoteException {
+////        var userId = ensureModule();
+////        if (ConfigManager.getInstance().scopeRequestBlocked(loadedModule.packageName)) {
+////            callback.onScopeRequestDenied(packageName);
+////        } else {
+////            LSPNotificationManager.requestModuleScope(loadedModule.packageName, userId, packageName, callback);
+////            callback.onScopeRequestPrompted(packageName);
+////        }
+//    }
+//
+//    @Override
+//    public String removeScope(String packageName) throws RemoteException {
+////        var userId = ensureModule();
+////        try {
+////            if (!ConfigManager.getInstance().removeModuleScope(loadedModule.packageName, packageName, userId)) {
+////                return "Invalid request";
+////            }
+////            return null;
+////        } catch (Throwable e) {
+////            return e.getMessage();
+////        }
+//        return null;
+//    }
 
-    @Override
-    public void requestScope(String packageName, IXposedScopeCallback callback) throws RemoteException {
-//        var userId = ensureModule();
-//        if (ConfigManager.getInstance().scopeRequestBlocked(loadedModule.packageName)) {
-//            callback.onScopeRequestDenied(packageName);
-//        } else {
-//            LSPNotificationManager.requestModuleScope(loadedModule.packageName, userId, packageName, callback);
-//            callback.onScopeRequestPrompted(packageName);
-//        }
-    }
-
-    @Override
-    public String removeScope(String packageName) throws RemoteException {
-//        var userId = ensureModule();
-//        try {
-//            if (!ConfigManager.getInstance().removeModuleScope(loadedModule.packageName, packageName, userId)) {
-//                return "Invalid request";
-//            }
-//            return null;
-//        } catch (Throwable e) {
-//            return e.getMessage();
-//        }
-        return null;
-    }
-
-    @Override
-    public Bundle requestRemotePreferences(String group) throws RemoteException {
-        var userId = ensureModule();
-        var bundle = new Bundle();
-//        bundle.putSerializable("map", ConfigManager.getInstance().getModulePrefs(loadedModule.packageName, userId, group));
-        bundle.putSerializable("map", new HashMap<>());
-        return bundle;
-    }
+//    @Override
+//    public Bundle requestRemotePreferences(String group) throws RemoteException {
+////        var userId = ensureModule();
+//        var bundle = new Bundle();
+////        bundle.putSerializable("map", ConfigManager.getInstance().getModulePrefs(loadedModule.packageName, userId, group));
+//        bundle.putSerializable("map", new HashMap<>());
+//        return bundle;
+//    }
 
     @Override
     public void updateRemotePreferences(String group, Bundle diff) throws RemoteException {
-        var userId = ensureModule();
+//        var userId = ensureModule();
         Map<String, Object> values = new ArrayMap<>();
         if (diff.containsKey("delete")) {
             var deletes = (Set<?>) diff.getSerializable("delete");
@@ -223,11 +222,11 @@ public class LSPModuleService extends IXposedService.Stub {
         }
     }
 
-    @Override
-    public void deleteRemotePreferences(String group) throws RemoteException {
+//    @Override
+//    public void deleteRemotePreferences(String group) throws RemoteException {
 //        var userId = ensureModule();
 //        ConfigManager.getInstance().deleteModulePrefs(loadedModule.packageName, userId, group);
-    }
+//    }
 
     @Override
     public String[] listRemoteFiles() throws RemoteException {

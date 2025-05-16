@@ -65,10 +65,9 @@ public class LSPosedContext implements XposedInterface {
     }
 
     public static void callOnPackageLoaded(XposedModuleInterface.PackageLoadedParam param) {
-        // TODO 未修复：modules 元素的名字应该是包名，这里变成了类名
-        Log.i(TAG,"callOnPackageLoaded，size:" + modules.size());
+        Log.i(TAG, "callOnPackageLoaded，size:" + modules.size());
         for (XposedModule module : modules) {
-            Log.i(TAG,"进入app，callOnPackageLoaded item:" + module.getApplicationInfo());
+            Log.i(TAG, "进入app，callOnPackageLoaded item:" + module.getApplicationInfo());
             try {
                 module.onPackageLoaded(param);
             } catch (Throwable t) {
@@ -79,9 +78,9 @@ public class LSPosedContext implements XposedInterface {
     }
 
     public static void callOnSystemServerLoaded(XposedModuleInterface.SystemServerLoadedParam param) {
-        Log.i(TAG,"callOnSystemServerLoaded: " + modules.size());
+        Log.i(TAG, "callOnSystemServerLoaded: " + modules.size());
         for (XposedModule module : modules) {
-            Log.i(TAG,"进入system，callOnSystemServerLoaded item:" + module.getApplicationInfo());
+            Log.i(TAG, "进入system，callOnSystemServerLoaded item:" + module.getApplicationInfo());
             try {
                 module.onSystemServerLoaded(param);
             } catch (Throwable t) {
@@ -177,17 +176,17 @@ public class LSPosedContext implements XposedInterface {
         return LSPosedBridge.doHook(origin, PRIORITY_DEFAULT, hooker);
     }
 
-    @NonNull
-    @Override
-    public <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, @NonNull Class<? extends Hooker> hooker) {
-        return null;
-    }
-
-    @NonNull
-    @Override
-    public <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, int priority, @NonNull Class<? extends Hooker> hooker) {
-        return null;
-    }
+//    @NonNull
+//    @Override
+//    public <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, @NonNull Class<? extends Hooker> hooker) {
+//        return null;
+//    }
+//
+//    @NonNull
+//    @Override
+//    public <T> MethodUnhooker<Constructor<T>> hookClassInitializer(@NonNull Class<T> origin, int priority, @NonNull Class<? extends Hooker> hooker) {
+//        return null;
+//    }
 
     @Override
     @NonNull
@@ -326,19 +325,19 @@ public class LSPosedContext implements XposedInterface {
         return mApplicationInfo;
     }
 
-    @NonNull
-    @Override
-    public SharedPreferences getRemotePreferences(String name) {
-        if (name == null) throw new IllegalArgumentException("name must not be null");
-        return mRemotePrefs.computeIfAbsent(name, n -> {
-            try {
-                return new LSPosedRemotePreferences(service, n);
-            } catch (RemoteException e) {
-                log("Failed to get remote preferences", e);
-                throw new XposedFrameworkError(e);
-            }
-        });
-    }
+//    @NonNull
+//    @Override
+//    public SharedPreferences getRemotePreferences(String name) {
+//        if (name == null) throw new IllegalArgumentException("name must not be null");
+//        return mRemotePrefs.computeIfAbsent(name, n -> {
+//            try {
+//                return new LSPosedRemotePreferences(service, n);
+//            } catch (RemoteException e) {
+//                log("Failed to get remote preferences", e);
+//                throw new XposedFrameworkError(e);
+//            }
+//        });
+//    }
 
     @NonNull
     @Override

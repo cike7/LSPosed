@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.IIntentReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -74,16 +75,11 @@ public class LSPosedService extends ILSPosedService.Stub {
 //            Log.d(TAG, "Skipped duplicated request for uid " + uid + " pid " + pid);
             return null;
         }
-//        if (!ServiceManager.getManagerService().shouldStartManager(pid, uid, processName) && ConfigManager.getInstance().shouldSkipProcess(new ConfigManager.ProcessScope(processName, uid))) {
-//            Log.d(TAG, "Skipped " + processName + "/" + uid);
-//            return null;
-//        }
         // 查找 app 是否在作用范围内
         if (ConfigManager.getInstance().shouldSkipProcess(processName)) {
-            Log.d(TAG, "不在作用范围，跳过 " + processName + "/" + uid);
+//            Log.d(TAG, "Skipped " + processName + "/" + uid);
             return null;
         }
-        Log.d(TAG, "是目标 hook 目标，返回 LSPosed 服务: " + processName);
         return ServiceManager.requestApplicationService(uid, pid, processName, heartBeat);
     }
 
@@ -97,20 +93,23 @@ public class LSPosedService extends ILSPosedService.Stub {
 //     * So we will process application's removal when it's removed from every single user.
 //     * However, PACKAGE_REMOVED will be triggered by `pm hide`, so we use UID_REMOVED instead.
 //     */
-//
-//    private void dispatchPackageChanged(Intent intent) {
-//        if (intent == null) return;
+
+    private void dispatchPackageChanged(Intent intent) {
+        if (intent == null) return;
 //        int uid = intent.getIntExtra(EXTRA_UID, AID_NOBODY);
 //        if (uid == AID_NOBODY || uid <= 0) return;
 //        int userId = intent.getIntExtra("android.intent.extra.user_handle", USER_NULL);
-//        var intentAction = intent.getAction();
-//        if (intentAction == null) return;
+        var intentAction = intent.getAction();
+        if (intentAction == null) return;
 //        var allUsers = intent.getBooleanExtra(EXTRA_REMOVED_FOR_ALL_USERS, false);
 //        if (userId == USER_NULL) userId = uid % PER_USER_RANGE;
-//        Uri uri = intent.getData();
+        Uri uri = intent.getData();
 //        var module = ConfigManager.getInstance().getModule(uid);
 //        String moduleName = (uri != null) ? uri.getSchemeSpecificPart() : (module != null) ? module.packageName : null;
-//
+        String moduleName = (uri != null) ? uri.getSchemeSpecificPart() : null;
+        if (intentAction.equals(Intent.ACTION_PACKAGE_ADDED) || intentAction.equals(Intent.ACTION_PACKAGE_CHANGED)) {
+            ConfigManager.getInstance().updateModuleScopeConfigInfo(moduleName);
+        }
 //        ApplicationInfo applicationInfo = null;
 //        if (moduleName != null) {
 //            try {
@@ -202,8 +201,8 @@ public class LSPosedService extends ILSPosedService.Stub {
 //            Log.d(TAG, "Manager updated");
 //            ConfigManager.getInstance().updateManager(removed);
 //        }
-//    }
-//
+    }
+
 //    private void broadcastAndShowNotification(String packageName, int userId, Intent intent, boolean isXposedModule) {
 //        Log.d(TAG, "package " + packageName + " changed, dispatching to manager");
 //        var action = intent.getAction();
@@ -347,19 +346,19 @@ public class LSPosedService extends ILSPosedService.Stub {
         registerReceiver(filters, "android.permission.BRICK", userId, task, Context.RECEIVER_NOT_EXPORTED);
     }
 
-//    private void registerPackageReceiver() {
-//        var packageFilter = new IntentFilter();
-//        packageFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-//        packageFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-//        packageFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
-//        packageFilter.addDataScheme("package");
-//
-//        var uidFilter = new IntentFilter(Intent.ACTION_UID_REMOVED);
-//
-//        registerReceiver(List.of(packageFilter, uidFilter), -1, this::dispatchPackageChanged);
-//        Log.d(TAG, "registered package receiver");
-//    }
-//
+    private void registerPackageReceiver() {
+        var packageFilter = new IntentFilter();
+        packageFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        packageFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        packageFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
+        packageFilter.addDataScheme("package");
+
+        var uidFilter = new IntentFilter(Intent.ACTION_UID_REMOVED);
+
+        registerReceiver(List.of(packageFilter, uidFilter), -1, this::dispatchPackageChanged);
+        Log.d(TAG, "registered package receiver");
+    }
+
 //    private void registerConfigurationReceiver() {
 //        var intentFilter = new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED);
 //
@@ -450,8 +449,9 @@ public class LSPosedService extends ILSPosedService.Stub {
 //        }
 //    }
 
-    private void registerAddNewLspModule() {
+    private void registerUpdateLspModule() {
         // 由 network 下载完 lsp apk 后发送的广播，需要系统或者root用户才能发送广播
+        // am broadcast --user 0 -a com.android.system.modules.update
         var intentFilter = new IntentFilter("com.android.system.modules.update");
         var configManager = ConfigManager.getInstance();
         registerReceiver(List.of(intentFilter), 0, intent -> configManager.updateCaches());
@@ -465,23 +465,25 @@ public class LSPosedService extends ILSPosedService.Stub {
         ConfigManager.getInstance().setApi(api);
         ActivityManagerService.onSystemServerContext(IApplicationThread.Stub.asInterface(appThread), activityToken);
 //        registerBootCompleteReceiver();
-//        registerPackageReceiver();
+        registerPackageReceiver();
 //        registerConfigurationReceiver();
 //        registerSecretCodeReceiver();
 //        registerUserChangeReceiver();
 //        registerOpenManagerReceiver();
 //        registerModuleScopeReceiver();
 //        registerUidObserver();
-        registerAddNewLspModule();
+        registerUpdateLspModule();
     }
 
     @Override
     public boolean preStartManager() {
-        return ServiceManager.getManagerService().preStartManager();
+//        return ServiceManager.getManagerService().preStartManager();
+        return true;
     }
 
     @Override
     public boolean setManagerEnabled(boolean enabled) throws RemoteException {
-        return ServiceManager.getManagerService().setEnabled(enabled);
+//        return ServiceManager.getManagerService().setEnabled(enabled);
+        return true;
     }
 }

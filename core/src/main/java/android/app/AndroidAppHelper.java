@@ -27,7 +27,6 @@ import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.newInstance;
 import static de.robv.android.xposed.XposedHelpers.setFloatField;
 
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
@@ -37,7 +36,6 @@ import android.view.Display;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 
 /**
@@ -151,24 +149,24 @@ public final class AndroidAppHelper {
 		return ActivityThread.currentApplication();
 	}
 
-	/** @deprecated Use {@link XSharedPreferences} instead. */
-	@SuppressWarnings("UnusedParameters")
-	@Deprecated
-	public static SharedPreferences getSharedPreferencesForPackage(String packageName, String prefFileName, int mode) {
-		return new XSharedPreferences(packageName, prefFileName);
-	}
-
-	/** @deprecated Use {@link XSharedPreferences} instead. */
-	@Deprecated
-	public static SharedPreferences getDefaultSharedPreferencesForPackage(String packageName) {
-		return new XSharedPreferences(packageName);
-	}
-
-	/** @deprecated Use {@link XSharedPreferences#reload} instead. */
-	@Deprecated
-	public static void reloadSharedPreferencesIfNeeded(SharedPreferences pref) {
-		if (pref instanceof XSharedPreferences) {
-			((XSharedPreferences) pref).reload();
-		}
-	}
+//	/** @deprecated Use {@link XSharedPreferences} instead. */
+//	@SuppressWarnings("UnusedParameters")
+//	@Deprecated
+//	public static SharedPreferences getSharedPreferencesForPackage(String packageName, String prefFileName, int mode) {
+//		return new XSharedPreferences(packageName, prefFileName);
+//	}
+//
+//	/** @deprecated Use {@link XSharedPreferences} instead. */
+//	@Deprecated
+//	public static SharedPreferences getDefaultSharedPreferencesForPackage(String packageName) {
+//		return new XSharedPreferences(packageName);
+//	}
+//
+//	/** @deprecated Use {@link XSharedPreferences#reload} instead. */
+//	@Deprecated
+//	public static void reloadSharedPreferencesIfNeeded(SharedPreferences pref) {
+//		if (pref instanceof XSharedPreferences) {
+//			((XSharedPreferences) pref).reload();
+//		}
+//	}
 }

@@ -20,8 +20,6 @@
 
 package org.lsposed.lspd.hooker;
 
-import static org.lsposed.lspd.core.ApplicationServiceClient.serviceClient;
-
 import android.annotation.SuppressLint;
 import android.app.ActivityThread;
 import android.app.LoadedApk;
@@ -44,7 +42,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.XposedInit;
@@ -197,12 +194,12 @@ public class LoadedApkCreateCLHooker implements XposedInterface.Hooker {
                     }
                 }
             });
-            XposedHelpers.findAndHookMethod("android.app.ContextImpl", lpparam.classLoader, "getPreferencesDir", new XC_MethodReplacement() {
-                @Override
-                protected Object replaceHookedMethod(MethodHookParam param) {
-                    return new File(serviceClient.getPrefsPath(lpparam.packageName));
-                }
-            });
+//            XposedHelpers.findAndHookMethod("android.app.ContextImpl", lpparam.classLoader, "getPreferencesDir", new XC_MethodReplacement() {
+//                @Override
+//                protected Object replaceHookedMethod(MethodHookParam param) {
+//                    return new File(serviceClient.getPrefsPath(lpparam.packageName));
+//                }
+//            });
         }
     }
 }

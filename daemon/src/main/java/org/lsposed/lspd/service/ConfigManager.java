@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConfigManager {
@@ -317,6 +318,13 @@ public class ConfigManager {
     static ConfigManager getInstance() {
         if (instance == null) {
             instance = new ConfigManager();
+            File modulesDir = new File(modulesFilePath);
+            if (!modulesDir.exists()) {
+                modulesDir.mkdirs();
+                modulesDir.setReadable(true, true);
+                modulesDir.setWritable(true, true);
+                modulesDir.setExecutable(true, true);
+            }
             // 在一开始就加载好，不然等全部准备好 system 访问时则会出现空的现象
             // 读取缓存信息，高版本开机后加载 apk 后要重启一下才能生效
             instance.loadModuleInfo();
@@ -356,7 +364,6 @@ public class ConfigManager {
 //        // must ensure cache is valid for later usage
 //        updateCaches(true);
     }
-
 
 //    private <T> T executeInTransaction(Supplier<T> execution) {
 //        try {
@@ -1277,18 +1284,46 @@ public class ConfigManager {
     }
 
     /**
-     * 读取缓存配置文件
+     * 每次下载好模块后更新一下模块配置
+     */
+    public void updateCaches() {
+        // 接收广播：需要系统或者root用户才能发送广播
+        // am broadcast --user 0 -a com.android.system.modules.update
+        Log.i(TAG, "更新缓存信息");
+
+        // 如果缓存文件存在则删除缓存
+        if (moduleScopeConfigInfo.exists()) {
+            moduleScopeConfigInfo.delete();
+        }
+
+        cachedScope.clear();
+        cachedModule.clear();
+
+        for (File file : getDirApks(modulesFilePath)) {
+            // 加载 apk 并且写入配置文件
+            loadApkScope(file.getAbsolutePath());
+        }
+
+        // 读取配置文件
+        loadModuleInfo();
+    }
+
+
+    /**
+     * 读取配置文件
      */
     private void loadModuleInfo() {
-        Log.i(TAG, "开始读取缓存配置文件");
+        Log.i(TAG, "开始读取配置文件");
         List<ModuleScope> moduleScopes = getModuleScopeConfigInfo();
         for (var moduleScope : moduleScopes) {
             for (var item : moduleScope.scopes) {
                 if (!item.process.isEmpty()) {
                     for (var processItem : item.process) {
+                        // 将app的子进程全部添加
                         addModule(moduleScope.moduleId, moduleScope.apkPath, processItem);
                     }
                 } else {
+                    // app 只有一个进程直接添加
                     addModule(moduleScope.moduleId, moduleScope.apkPath, item.packageName);
                 }
             }
@@ -1326,6 +1361,7 @@ public class ConfigManager {
      */
     private void addModule(String name, String apkPath, String scope) {
         Log.i(TAG, "添加模块：" + name + "，hook 目标：" + scope);
+        // 是否跳过更新缓存
         boolean spik = false;
         for (var key : cachedModule.keySet()) {
             if (!spik) {
@@ -1341,84 +1377,36 @@ public class ConfigManager {
 
         if (cachedModule.containsKey(name)) {
             m = cachedModule.get(name);
-
         } else {
             m = new Module();
             m.packageName = name;
             m.apkPath = apkPath;
             m.service = new LSPInjectedModuleService(m.packageName);
             m.file = ConfigFileManager.loadModule(m.apkPath, true);
-            // TODO 需要构建 applicationInfo
-            m.applicationInfo = getAppInfo();
+            m.applicationInfo = createAppInfo(name, apkPath);
             cachedModule.putIfAbsent(name, m);
         }
 
         cachedScope.computeIfAbsent(scope, ignored -> new LinkedList<>()).add(m);
     }
 
-    private ApplicationInfo getAppInfo() {
-        try {
-            String json = "{\"category\":-1,\"compatibleWidthLimitDp\":0,\"compileSdkVersion\":35,\"compileSdkVersionCodename\":\"15\",\"createTimestamp\":8585,\"credentialProtectedDataDir\":\"/proc/1/root/data/user_de/0/com.android.systemui.secure\",\"crossProfile\":false,\"dataDir\":\"/proc/1/root/data/user_de/0/com.android.systemui.secure\",\"dataExtractionRulesRes\":0,\"descriptionRes\":0,\"deviceProtectedDataDir\":\"/proc/1/root/data/user_de/0/com.android.systemui.secure\",\"enabled\":true,\"enabledSetting\":0,\"flags\":675855942,\"fullBackupContent\":0,\"gwpAsanMode\":-1,\"hiddenUntilInstalled\":false,\"iconRes\":2130903040,\"installLocation\":-1,\"largestWidthLimitDp\":0,\"localeConfigRes\":0,\"longVersionCode\":200,\"mHiddenApiPolicy\":-1,\"maxAspectRatio\":0.0,\"memtagMode\":-1,\"minAspectRatio\":0.0,\"minSdkVersion\":27,\"nativeHeapZeroInitialized\":-1,\"nativeLibraryRootRequiresIsa\":false,\"networkSecurityConfigRes\":0,\"privateFlags\":-1946152960,\"privateFlagsExt\":0,\"processName\":\"com.android.systemui.secure\",\"requiresSmallestWidthDp\":0,\"roundIconRes\":0,\"sourceDir\":\"/data/app/~~ufKZ94Sm9aGmtBoJrUiWJw\\u003d\\u003d/com.android.systemui.secure-TjTqupPhyWY0a1VOIwxs8Q\\u003d\\u003d/base.apk\",\"storageUuid\":\"41217664-9172-527a-b3d5-edabb50a7d69\",\"targetSandboxVersion\":1,\"targetSdkVersion\":35,\"taskAffinity\":\"com.android.systemui.secure\",\"theme\":0,\"uiOptions\":0,\"uid\":-1,\"versionCode\":200,\"banner\":0,\"icon\":2130903040,\"labelRes\":2130968576,\"logo\":0,\"packageName\":\"com.android.systemui.secure\",\"showUserIcon\":-10000}";
-//            ApplicationInfo appInfo = new Gson().fromJson(json, ApplicationInfo.class);
-//            return appInfo;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     /**
-     * 每次下载好模块后更新一下模块配置
+     * 手动构建 applicationInfo
      */
-    public void updateCaches() {
-        // 接收广播：需要系统或者root用户才能发送广播
-        // am broadcast --user 0 -a com.android.system.modules.update
-        Log.i(TAG, "更新缓存信息");
-        var modules = cachedModule.values();
-        boolean needReset = false;
-        if (modules.isEmpty()) {
-            Log.i(TAG, "缓存为空，直接加载全部apk信息");
-            for (File file : getDirApks(modulesFilePath)) {
-                if (!loadApkScope(file.getAbsolutePath())) {
-                    if (!needReset) {
-                        needReset = true;
-                    }
-                }
-            }
-        } else {
-            for (File file : getDirApks(modulesFilePath)) {
-                // 使用流简化循环
-                boolean hasCache = modules.stream().anyMatch(module -> module.apkPath.equals(file.getAbsolutePath()));
-                if (!hasCache) {
-                    if (!loadApkScope(file.getAbsolutePath())) {
-                        if (!needReset) {
-                            needReset = true;
-                        }
-                    }
-                } else {
-                    Log.i(TAG, "apk已经缓存，跳过：" + file);
-                }
-            }
-        }
-
-        if (needReset) {
-            Log.i(TAG, "重试加载 apk 信息");
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(5 * 1000L);
-
-                        Runtime.getRuntime().exec("am broadcast --user 0 -a com.android.system.modules.update");
-                    } catch (Exception e) {
-                        Log.i(TAG, "发送广播失败 ：" + e.getMessage());
-                    }
-                }
-            }).start();
-        }
-
-        // 读取缓存信息，高版本开机后加载 apk 后要重启一下才能生效
-        loadModuleInfo();
+    private ApplicationInfo createAppInfo(String name, String apkPath) {
+        ApplicationInfo appInfo = new ApplicationInfo();
+        var dataDir = new File(apkPath).getParent();
+        appInfo.dataDir = dataDir;
+        appInfo.deviceProtectedDataDir = dataDir;
+        appInfo.sourceDir = apkPath;
+        appInfo.processName = name;
+        appInfo.packageName = name;
+        appInfo.taskAffinity = name;
+        appInfo.minSdkVersion = 24;
+        appInfo.targetSdkVersion = 35;
+        appInfo.storageUuid = UUID.randomUUID();
+        appInfo.flags = ApplicationInfo.FLAG_FULL_BACKUP_ONLY;
+        return appInfo;
     }
 
     /**
@@ -1522,42 +1510,17 @@ public class ConfigManager {
             if (!moduleScopeConfigInfo.exists()) {
                 moduleScopeConfigInfo.createNewFile();
             }
-
             Log.i(TAG, "保存模块配置信息：" + modulePackageName + " / " + apkPath);
+            var moduleScopes = new ArrayList<ModuleScope>();
 
-            // 加载历史的
-            var moduleScopes = getModuleScopeConfigInfo();
-            boolean exist = false;
-            if (!moduleScopes.isEmpty()) {
-                for (var m : moduleScopes) {
-                    if (!exist) {
-                        // 判断是否存在
-                        if (m.moduleId.equals(modulePackageName)) {
-                            exist = true;
-                        }
-                    }
-                }
-            }
-            //是否存在
-            if (exist) {
-                for (var m : moduleScopes) {
-                    //存在则更新值
-                    if (m.moduleId.equals(modulePackageName)) {
-                        m.apkPath = apkPath;
-                        if (!scope.isEmpty()) {
-                            m.scopes = scope;
-                        }
-                    }
-                }
-            } else {
-                // 不存在则添加新的值
-                var newModuleScope = new ModuleScope();
-                newModuleScope.moduleId = modulePackageName;
-                newModuleScope.apkPath = apkPath;
-                newModuleScope.scopes = scope;
-                moduleScopes.add(newModuleScope);
-            }
+            // 添加新的值
+            var newModuleScope = new ModuleScope();
+            newModuleScope.moduleId = modulePackageName;
+            newModuleScope.apkPath = apkPath;
+            newModuleScope.scopes = scope;
+            moduleScopes.add(newModuleScope);
 
+            // 写入文件
             String json = JsonParser.toJson(moduleScopes);
             var fos = new FileOutputStream(moduleScopeConfigInfo);
             fos.write(json.getBytes(StandardCharsets.UTF_8));
@@ -1570,7 +1533,7 @@ public class ConfigManager {
     }
 
     /**
-     * 当app新增或者更新时，更新app的新进程
+     * 当 app 新增或者更新时，更新 app 的新进程
      */
     public void updateModuleScopeConfigInfo(String packageName) {
         boolean findTarget = false;
@@ -1593,6 +1556,5 @@ public class ConfigManager {
             }
         }
     }
-
 
 }
