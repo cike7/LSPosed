@@ -27,8 +27,7 @@
     @io.github.libxposed.api.annotations.AfterInvocation <methods>;
 }
 -assumenosideeffects class android.util.Log {
-    public static *** v(...);
-    public static *** d(...);
+    public static *** *(...);
 }
 -repackageclasses
 -allowaccessmodification

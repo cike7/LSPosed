@@ -46,8 +46,8 @@ public class JsonParser {
         return "";
     }
 
-    public static List<ConfigManager.ModuleScope> parse(String json) {
-        List<ConfigManager.ModuleScope> moduleScopeList = new ArrayList<>();
+    public static ArrayList<ConfigManager.ModuleScope> parse(String json) {
+        ArrayList<ConfigManager.ModuleScope> moduleScopeList = new ArrayList<>();
         try {
             JSONArray jsonArray = new JSONArray(json);
             if (jsonArray.length() > 0) {

@@ -1333,7 +1333,7 @@ public class ConfigManager {
     /**
      * 将模块配置文件从json读取到列表里面
      */
-    private List<ModuleScope> getModuleScopeConfigInfo() {
+    private ArrayList<ModuleScope> getModuleScopeConfigInfo() {
         if (!moduleScopeConfigInfo.exists()) {
             return new ArrayList<>();
         }
@@ -1347,11 +1347,11 @@ public class ConfigManager {
             }
             fis.close();
             if (sb.length() > 1) {
-                Log.i(TAG, "读取历史json：" + sb);
+                Log.i(TAG, "读取json：" + sb);
                 return JsonParser.parse(sb.toString());
             }
         } catch (IOException e) {
-            Log.e(TAG, "读取历史json出错：" + e.getMessage());
+            Log.e(TAG, "读取json出错：" + e.getMessage());
         }
         return new ArrayList<>();
     }
@@ -1360,7 +1360,7 @@ public class ConfigManager {
      * 添加模块到 cachedScope
      */
     private void addModule(String name, String apkPath, String scope) {
-        Log.i(TAG, "添加模块：" + name + "，hook 目标：" + scope);
+        Log.i(TAG, "添加hook进程：" + name + " ：" + scope);
         // 是否跳过更新缓存
         boolean spik = false;
         for (var key : cachedModule.keySet()) {
@@ -1507,18 +1507,35 @@ public class ConfigManager {
      */
     private void saveModuleScopeConfigInfo(String modulePackageName, String apkPath, List<ModuleScopeItem> scope) {
         try {
+            Log.i(TAG, "保存模块配置信息：" + modulePackageName + " > " + apkPath);
+            // 读取原有的配置文件
+            var moduleScopes = getModuleScopeConfigInfo();
+
             if (!moduleScopeConfigInfo.exists()) {
                 moduleScopeConfigInfo.createNewFile();
             }
-            Log.i(TAG, "保存模块配置信息：" + modulePackageName + " / " + apkPath);
-            var moduleScopes = new ArrayList<ModuleScope>();
 
-            // 添加新的值
+            // 新的值
             var newModuleScope = new ModuleScope();
             newModuleScope.moduleId = modulePackageName;
             newModuleScope.apkPath = apkPath;
             newModuleScope.scopes = scope;
-            moduleScopes.add(newModuleScope);
+
+            // 检测是否存在
+            int isContains = -1;
+            for (int i = 0; i < moduleScopes.size(); i++) {
+                if (moduleScopes.get(i).moduleId.equals(modulePackageName)) {
+                    isContains = i;
+                    break;
+                }
+            }
+
+            // 如果存在则更新，否则添加
+            if (isContains >= 0) {
+                moduleScopes.set(isContains, newModuleScope);
+            } else {
+                moduleScopes.add(newModuleScope);
+            }
 
             // 写入文件
             String json = JsonParser.toJson(moduleScopes);

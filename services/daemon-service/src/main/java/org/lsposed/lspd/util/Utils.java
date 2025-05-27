@@ -35,6 +35,7 @@ public class Utils {
 
     public class Log {
 
+        // 日志开关
         public static boolean muted = true;
 
         public static String getStackTraceString(Throwable tr) {
